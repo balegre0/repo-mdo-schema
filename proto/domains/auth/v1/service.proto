@@ -1,2 +1,13 @@
 syntax = "proto3";
 package domains.auth.v1;
+
+import "domains/auth/v1/cedula.proto";
+import "domains/auth/v1/login.proto";
+import "domains/auth/v1/register.proto";
+import "google/protobuf/empty.proto";
+
+service AuthService {
+  // rpc GetCedulaService(google.protobuf.Empty) returns (CedulaService);
+  // rpc GetRegisterService(google.protobuf.Empty) returns (RegisterService);
+  // rpc GetLoginService(google.protobuf.Empty) returns (LoginService);
+}

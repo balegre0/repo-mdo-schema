@@ -1,2 +1,102 @@
 syntax = "proto3";
 package domains.auth.v1;
+
+import "buf/validate/validate.proto";
+import "common/v1/security.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+enum Permission {
+  PERMISSION_UNSPECIFIED = 0;
+  PERMISSION_REPORT_CREATE = 1;
+  PERMISSION_REPORT_READ = 2;
+  PERMISSION_REPORT_UPDATE = 3;
+  PERMISSION_REPORT_DELETE = 4;
+  PERMISSION_REPORT_VERIFY = 5;
+  PERMISSION_REPORT_ASSIGN = 6;
+  PERMISSION_REPORT_MODERATE = 7;
+  PERMISSION_EMERGENCY_DISPATCH = 8;
+  PERMISSION_EMERGENCY_VIEW_ALL = 9;
+  PERMISSION_USER_VIEW = 10;
+  PERMISSION_USER_BAN = 11;
+  PERMISSION_ASSIGN_ROLE = 12;
+  PERMISSION_STATS_VIEW = 13;
+  PERMISSION_STATS_EXPORT = 14;
+  PERMISSION_SYSTEM_CONFIG = 15;
+  PERMISSION_SYSTEM_LOGS = 16;
+  PERMISSION_BILLING_VIEW = 17;
+  PERMISSION_BILLING_MANAGE = 18;
+  PERMISSION_MODERATE_CONTENT = 19;
+}
+
+message Role {
+  enum RoleName {
+    ROLE_NAME_UNSPECIFIED = 0;
+    ROLE_NAME_CITIZEN = 1;
+    ROLE_NAME_VALIDATOR = 2;
+    ROLE_NAME_EMERGENCY_ADMIN = 3;
+    ROLE_NAME_GOV_MANAGER = 4;
+    ROLE_NAME_SUPER_ADMIN = 5;
+  }
+  optional RoleName name = 1;
+  repeated Permission permissions = 2 [(buf.validate.field).repeated.max_items = 50];
+  optional string description = 3 [(buf.validate.field).string.max_len = 256];
+  optional bool is_default = 4;
+  repeated RoleName inherited_from = 5 [(buf.validate.field).repeated.max_items = 5];
+  optional uint32 priority = 6;
+}
+
+message RoleWithExpiry {
+  optional Role.RoleName role = 1;
+  optional google.protobuf.Timestamp assigned_at = 2;
+  optional google.protobuf.Timestamp expires_at = 3;
+  optional uint64 assigned_by = 4;
+  repeated uint32 province_scope = 5 [(buf.validate.field).repeated.max_items = 32];
+}
+
+message AssignRoleRequest {
+  optional uint64 user_id = 1;
+  optional Role.RoleName role = 2;
+  optional string reason = 3 [(buf.validate.field).string.max_len = 256];
+  optional google.protobuf.Timestamp expires_at = 4;
+  repeated uint32 province_scope = 5 [(buf.validate.field).repeated.max_items = 32];
+  optional string client_nonce = 6 [(buf.validate.field).string.max_len = 64];
+  optional common.v1.HighSecurityToken high_security_token = 7;
+  optional string idempotency_key = 8 [(buf.validate.field).string.max_len = 64];
+}
+
+message AssignRoleResponse {
+  optional uint64 user_id = 1;
+  optional Role.RoleName role = 2;
+  optional uint64 assigned_by = 3;
+  optional google.protobuf.Timestamp assigned_at = 4;
+  optional google.protobuf.Timestamp expires_at = 5;
+  repeated uint32 province_scope = 6 [(buf.validate.field).repeated.max_items = 32];
+}
+
+message RemoveRoleRequest {
+  optional uint64 user_id = 1;
+  optional Role.RoleName role = 2;
+  optional string reason = 3 [(buf.validate.field).string.max_len = 256];
+  optional string nonce = 4 [(buf.validate.field).string.max_len = 64];
+  optional common.v1.HighSecurityToken high_security_token = 5;
+  optional string idempotency_key = 6 [(buf.validate.field).string.max_len = 64];
+}
+
+message UserRolesResponse {
+  repeated RoleWithExpiry roles = 1 [(buf.validate.field).repeated.max_items = 10];
+  repeated Permission effective_permissions = 2 [(buf.validate.field).repeated.max_items = 50];
+}
+
+message ListAvailableRolesResponse {
+  repeated Role roles = 1 [(buf.validate.field).repeated.max_items = 20];
+  optional uint32 total = 2;
+}
+
+service RolesService {
+  rpc AssignRole(AssignRoleRequest) returns (AssignRoleResponse);
+  rpc RemoveRole(RemoveRoleRequest) returns (google.protobuf.Empty);
+  rpc GetUserRoles(google.protobuf.Empty) returns (UserRolesResponse);
+  rpc ListAvailableRoles(google.protobuf.Empty) returns (ListAvailableRolesResponse);
+  rpc ListAssignableRoles(google.protobuf.Empty) returns (ListAvailableRolesResponse);
+}
