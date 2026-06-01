@@ -12,7 +12,6 @@ message Hash {
     ALGORITHM_BLAKE3 = 3;
   }
   optional Algorithm algorithm = 1;
-
   optional bytes value = 2 [(buf.validate.field).bytes = {
     min_len: 32
     max_len: 64
@@ -26,7 +25,6 @@ message Signature {
     ALGORITHM_ECDSA_P256 = 2;
   }
   optional Algorithm algorithm = 1;
-
   optional string id = 2 [(buf.validate.field).string.max_len = 64];
   optional bytes key_data = 3 [(buf.validate.field).bytes.max_len = 256];
 }
