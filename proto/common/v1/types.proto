@@ -1,0 +1,54 @@
+syntax = "proto3";
+package common.v1;
+
+import "buf/validate/validate.proto";
+
+enum Priority {
+  PRIORITY_UNSPECIFIED = 0;
+  PRIORITY_LOW = 1;
+  PRIORITY_MEDIUM = 2;
+  PRIORITY_HIGH = 3;
+  PRIORITY_CRITICAL = 4;
+  PRIORITY_EMERGENCY = 5;
+}
+
+enum Platform {
+  PLATFORM_UNSPECIFIED = 0;
+  PLATFORM_WEB = 1;
+  PLATFORM_IOS = 2;
+  PLATFORM_ANDROID = 3;
+  PLATFORM_API = 4;
+  PLATFORM_ADMIN = 5;
+  PLATFORM_CLI = 6;
+}
+
+enum Language {
+  LANGUAGE_UNSPECIFIED = 0;
+  LANGUAGE_SPANISH = 1;
+  LANGUAGE_ENGLISH = 2;
+  LANGUAGE_FRENCH = 4;
+}
+
+enum NotificationType {
+  NOTIFICATION_TYPE_UNSPECIFIED = 0;
+  NOTIFICATION_TYPE_REPORT_UPDATE = 1;
+  NOTIFICATION_TYPE_SYSTEM_ALERT = 2;
+  NOTIFICATION_TYPE_REWARD_EARNED = 3;
+  NOTIFICATION_TYPE_TIP_RECEIVED = 4;
+}
+
+enum VoteDirection {
+  VOTE_DIRECTION_UNSPECIFIED = 0;
+  VOTE_DIRECTION_UP = 1;
+  VOTE_DIRECTION_DOWN = 2;
+  VOTE_DIRECTION_REMOVE = 3;
+}
+
+message ClientMetadata {
+  optional Platform platform = 1;
+  optional string app_version = 2 [(buf.validate.field).string.max_len = 32];
+  optional string os_version = 3 [(buf.validate.field).string.max_len = 32];
+  optional string device_model = 4 [(buf.validate.field).string.max_len = 64];
+  optional string screen_size = 5 [(buf.validate.field).string.max_len = 32];
+  optional string timezone = 6 [(buf.validate.field).string.max_len = 64];
+}

@@ -1,0 +1,133 @@
+syntax = "proto3";
+package common.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+
+message Timestamp {
+  google.protobuf.Timestamp value = 1;
+}
+
+message Geolocation {
+  optional double lat = 1 [(buf.validate.field).double = {
+    gte: -90.0
+    lte: 90.0
+  }];
+  optional double lon = 2 [(buf.validate.field).double = {
+    gte: -180.0
+    lte: 180
+  }];
+  optional uint64 grid_index = 3;
+  optional float alt = 4;
+  optional float accuracy = 5 [(buf.validate.field).float.gte = 0.0];
+  optional float speed = 6 [(buf.validate.field).float.gte = 0.0];
+  optional uint32 heading = 7;
+
+  enum Source {
+    SOURCE_UNSPECIFIED = 0;
+    SOURCE_GPS = 1;
+    SOURCE_NETWORK = 2;
+    SOURCE_FUSED = 3;
+    SOURCE_MANUAL = 4;
+  }
+  optional Source source = 8;
+
+  option (buf.validate.message).cel = {
+    id: "geolocation_heading_range"
+    message: "heading must be between 0 and 359 degrees"
+    expression: "!has(this.heading) || (this.heading >= 0u && this.heading <= 359u)"
+  };
+}
+
+message BoundingBox {
+  optional double north = 1 [(buf.validate.field).double = {
+    gte: -90.0
+    lte: 90.0
+  }];
+  optional double south = 2 [(buf.validate.field).double = {
+    gte: -90.0
+    lte: 90.0
+  }];
+  optional double east = 3 [(buf.validate.field).double = {
+    gte: -180.0
+    lte: 180.0
+  }];
+  optional double west = 4 [(buf.validate.field).double = {
+    gte: -180.0
+    lte: 180.0
+  }];
+
+  option (buf.validate.message).cel = {
+    id: "bounding_box_north_ge_south"
+    message: "north must be greater than or equal to south"
+    expression: "!has(this.north) || !has(this.south) || this.north >= this.south"
+  };
+
+  option (buf.validate.message).cel = {
+    id: "bounding_box_east_ge_west"
+    message: "east must be greater than or equal to west"
+    expression: "!has(this.east) || !has(this.west) || this.east >= this.west"
+  };
+}
+
+enum VerifiedLevel {
+  VERIFIED_LEVEL_UNSPECIFIED = 0;
+  VERIFIED_LEVEL_UNVERIFIED = 1;
+  VERIFIED_LEVEL_BASIC = 2;
+  VERIFIED_LEVEL_FULL = 3;
+}
+
+message UserMetadata {
+  optional uint64 uid = 1;
+  optional string display_name = 2 [(buf.validate.field).string.max_len = 100];
+  optional float trust_score = 3 [(buf.validate.field).float = {
+    gte: 0.0
+    lte: 1.0
+  }];
+  optional bool is_official = 4;
+  optional VerifiedLevel verified_level = 5;
+  optional Timestamp created_at = 6;
+  EncryptedData contact = 7;
+}
+
+message Error {
+  enum Code {
+    CODE_UNSPECIFIED = 0;
+    CODE_UNAUTHORIZED = 1;
+    CODE_RATE_LIMIT_EXCEEDED = 2;
+    CODE_INSUFFICIENT_FUNDS = 3;
+    CODE_INVALID_STATE_TRANSITION = 4;
+    CODE_CIRCUIT_BREAKER_TRIPPED = 5;
+    CODE_RESOURCE_NOT_FOUND = 6;
+    CODE_PRECONDITION_FAILED = 7;
+    CODE_CAPABILITY_REVOKED = 8;
+    CODE_INVALID_PAYLOAD_SIZE = 9;
+    CODE_INTERNAL_PANIC = 10;
+  }
+  message RetryStrategy {
+    optional uint32 max_attempts = 1 [(buf.validate.field).uint32 = {
+      gte: 1
+      lte: 10
+    }];
+    optional uint32 initial_delay_ms = 2 [(buf.validate.field).uint32.gte = 0];
+    optional float backoff_factor = 3 [(buf.validate.field).float.gte = 1.0];
+  }
+  optional Code code = 1;
+  optional bool recoverable = 2;
+  optional RetryStrategy retry_strategy = 3;
+  optional uint64 request_id = 4;
+  optional string contextual_message = 5 [(buf.validate.field).string.max_len = 256];
+  optional uint64 trace_id = 6;
+}
+
+message EncryptedData {
+  optional bytes ciphertext = 1;
+  optional string key_id = 2 [(buf.validate.field).string.max_len = 64];
+  optional uint32 key_version = 3;
+  optional Timestamp rotation_timestamp = 4;
+  optional bytes nonce = 5 [(buf.validate.field).bytes.max_len = 24];
+  optional uint32 version = 6 [(buf.validate.field).uint32 = {
+    gte: 1
+    lte: 2
+  }];
+}
