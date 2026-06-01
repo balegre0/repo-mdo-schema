@@ -2,11 +2,8 @@ syntax = "proto3";
 package common.v1;
 
 import "buf/validate/validate.proto";
+import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
-
-message Timestamp {
-  google.protobuf.Timestamp value = 1;
-}
 
 message Geolocation {
   optional double lat = 1 [(buf.validate.field).double = {
@@ -86,7 +83,7 @@ message UserMetadata {
   }];
   optional bool is_official = 4;
   optional VerifiedLevel verified_level = 5;
-  optional Timestamp created_at = 6;
+  optional google.protobuf.Timestamp created_at = 6;
   EncryptedData contact = 7;
 }
 
@@ -104,6 +101,7 @@ message Error {
     CODE_INVALID_PAYLOAD_SIZE = 9;
     CODE_INTERNAL_PANIC = 10;
   }
+
   message RetryStrategy {
     optional uint32 max_attempts = 1 [(buf.validate.field).uint32 = {
       gte: 1
@@ -112,6 +110,7 @@ message Error {
     optional uint32 initial_delay_ms = 2 [(buf.validate.field).uint32.gte = 0];
     optional float backoff_factor = 3 [(buf.validate.field).float.gte = 1.0];
   }
+
   optional Code code = 1;
   optional bool recoverable = 2;
   optional RetryStrategy retry_strategy = 3;
@@ -124,7 +123,7 @@ message EncryptedData {
   optional bytes ciphertext = 1;
   optional string key_id = 2 [(buf.validate.field).string.max_len = 64];
   optional uint32 key_version = 3;
-  optional Timestamp rotation_timestamp = 4;
+  optional google.protobuf.Timestamp rotation_timestamp = 4;
   optional bytes nonce = 5 [(buf.validate.field).bytes.max_len = 24];
   optional uint32 version = 6 [(buf.validate.field).uint32 = {
     gte: 1

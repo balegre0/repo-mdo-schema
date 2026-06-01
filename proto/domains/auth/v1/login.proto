@@ -1,0 +1,120 @@
+syntax = "proto3";
+package domains.auth.v1;
+
+import "buf/validate/validate.proto";
+import "common/v1/base.proto";
+import "common/v1/crypto.proto";
+import "common/v1/types.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+message LoginCredential {
+  oneof credential {
+    EmailPassword email_password = 1;
+    bytes biometric = 2;
+    string magic_link = 3;
+  }
+
+  message EmailPassword {
+    string email = 1 [(buf.validate.field).string = {
+      email: true
+      max_len: 256
+    }];
+    string password = 2 [(buf.validate.field).string = {
+      min_len: 8
+      max_len: 128
+    }];
+  }
+}
+
+message LoginRequest {
+  optional LoginCredential credential = 1;
+  optional string device_id = 2 [(buf.validate.field).string.max_len = 128];
+  optional string ip_address = 3 [(buf.validate.field).string.max_len = 45];
+  optional common.v1.Hash fingerprint = 4;
+  optional common.v1.ClientMetadata client_metadata = 5;
+  optional string client_nonce = 6 [(buf.validate.field).string.max_len = 64];
+  optional string idempotency_key = 7 [(buf.validate.field).string.max_len = 64];
+}
+
+message LoginResult {
+  oneof result {
+    // Session session = 1;
+    common.v1.Error error = 2;
+  }
+}
+
+service Session {
+  rpc GetUserId(google.protobuf.Empty) returns (UserIdResponse);
+  rpc GetRoles(google.protobuf.Empty) returns (RolesResponse);
+  // rpc GetReportsService(google.protobuf.Empty) returns (auth.v1.ReportsService);
+  // rpc GetBillingService(google.protobuf.Empty) returns (auth.v1.BillingService);
+  // rpc GetAuditService(google.protobuf.Empty) returns (auth.v1.AuditService);
+  // rpc Refresh(google.protobuf.Empty) returns (Session);
+  // rpc Revoke(RevokeReason) returns (google.protobuf.Empty);
+  rpc GetTraceSalt(google.protobuf.Empty) returns (SaltResponse);
+}
+
+message UserIdResponse {
+  uint64 user_id = 1;
+}
+
+message RolesResponse {
+  // auth.v1.RolesService roles_service = 1;
+}
+
+message SaltResponse {
+  bytes salt = 1;
+}
+
+enum RevokeReason {
+  REVOKE_REASON_UNSPECIFIED = 0;
+  REVOKE_REASON_USER_INITIATED = 1;
+  REVOKE_REASON_SECURITY_BREACH = 2;
+  REVOKE_REASON_DEVICE_LOST = 3;
+  REVOKE_REASON_ADMIN_ACTION = 4;
+}
+
+message MfaChallengeRequest {
+  optional uint64 session_id = 1;
+
+  enum MfaMethod {
+    MFA_METHOD_UNSPECIFIED = 0;
+    MFA_METHOD_TOTP = 1;
+    MFA_METHOD_SMS = 2;
+    MFA_METHOD_EMAIL = 3;
+    MFA_METHOD_BACKUP_CODE = 4;
+  }
+  optional MfaMethod method = 2;
+
+  optional string code = 3 [(buf.validate.field).string = {
+    min_len: 4
+    max_len: 8
+  }];
+  optional string idempotency_key = 4 [(buf.validate.field).string.max_len = 64];
+}
+
+message MfaChallengeResponse {
+  optional bool valid = 1;
+  // optional Session session = 2;
+  optional google.protobuf.Timestamp expires_at = 3;
+}
+
+message MagicLinkRequest {
+  optional string email = 1 [(buf.validate.field).string.email = true];
+  optional string redirect_url = 2 [(buf.validate.field).string.max_len = 512];
+  optional string device_id = 3 [(buf.validate.field).string.max_len = 128];
+  optional string ip_address = 4 [(buf.validate.field).string.max_len = 45];
+  optional string idempotency_key = 5 [(buf.validate.field).string.max_len = 64];
+}
+
+message MagicLinkResponse {
+  optional bool sent = 1;
+  optional google.protobuf.Timestamp expires_at = 2;
+}
+
+service LoginService {
+  rpc Login(LoginRequest) returns (LoginResult);
+  rpc MfaChallenge(MfaChallengeRequest) returns (MfaChallengeResponse);
+  rpc RequestMagicLink(MagicLinkRequest) returns (MagicLinkResponse);
+}

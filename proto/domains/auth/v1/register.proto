@@ -1,0 +1,83 @@
+syntax = "proto3";
+package domains.auth.v1;
+
+import "buf/validate/validate.proto";
+import "common/v1/base.proto";
+import "common/v1/crypto.proto";
+import "common/v1/types.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+message RegisterRequest {
+  optional string email = 1 [(buf.validate.field).string = {
+    email: true
+    max_len: 256
+  }];
+  optional string phone = 2 [(buf.validate.field).string = {
+    pattern: "^\\+[1-9]\\d{1,14}$"
+    min_len: 10
+    max_len: 16
+  }];
+  optional common.v1.Hash password_hash = 3;
+  optional uint64 verification_id = 4;
+  optional bool accept_terms = 5;
+  optional bool accept_privacy = 6;
+  optional bool accept_communications = 7;
+  optional string device_id = 8 [(buf.validate.field).string.max_len = 128];
+  optional string ip_address = 9 [(buf.validate.field).string.max_len = 45];
+  optional common.v1.ClientMetadata client_metadata = 10;
+  optional string client_nonce = 11 [(buf.validate.field).string.max_len = 64];
+  optional string idempotency_key = 12 [(buf.validate.field).string.max_len = 64];
+}
+
+message RegisterResponse {
+  optional uint64 user_id = 1;
+  // optional Session session = 2;
+  optional google.protobuf.Timestamp expires_at = 3;
+  optional google.protobuf.Timestamp refresh_expires_at = 4;
+  optional common.v1.VerifiedLevel verified_level = 5;
+  optional bool requires_mfa = 6;
+}
+
+message CheckExistsRequest {
+  oneof identifier {
+    string email = 1 [(buf.validate.field).string.max_len = 256];
+    string phone = 2 [(buf.validate.field).string.max_len = 16];
+    string cedula = 3 [(buf.validate.field).string.max_len = 16];
+  }
+}
+
+message CheckExistsResponse {
+  optional bool exists = 1;
+
+  enum AccountType {
+    ACCOUNT_TYPE_UNSPECIFIED = 0;
+    ACCOUNT_TYPE_NONE = 1;
+    ACCOUNT_TYPE_ACTIVE = 2;
+    ACCOUNT_TYPE_SUSPENDED = 3;
+    ACCOUNT_TYPE_DELETED = 4;
+  }
+  optional AccountType account_type = 2;
+}
+
+message RegisterResult {
+  oneof result {
+    RegisterResponse success = 1;
+    common.v1.Error error = 2;
+  }
+}
+
+service RegisterService {
+  rpc Register(RegisterRequest) returns (RegisterResult);
+  rpc CheckExists(CheckExistsRequest) returns (CheckExistsResponse);
+  rpc ResendVerificationEmail(ResendVerificationEmailRequest) returns (google.protobuf.Empty);
+  rpc VerifyEmail(VerifyEmailRequest) returns (google.protobuf.Empty);
+}
+
+message ResendVerificationEmailRequest {
+  string email = 1;
+}
+
+message VerifyEmailRequest {
+  string token = 1;
+}

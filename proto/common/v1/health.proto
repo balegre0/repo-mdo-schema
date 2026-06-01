@@ -2,7 +2,7 @@ syntax = "proto3";
 package common.v1;
 
 import "buf/validate/validate.proto";
-import "common/v1/base.proto";
+import "google/protobuf/timestamp.proto";
 
 message HealthReport {
   enum Status {
@@ -13,8 +13,9 @@ message HealthReport {
     STATUS_MAINTENANCE = 4;
   }
   optional Status status = 1;
+
   optional uint64 uptime_seconds = 2;
   optional string version = 3 [(buf.validate.field).string.max_len = 32];
   optional bytes server_signature = 4 [(buf.validate.field).bytes.max_len = 256];
-  optional Timestamp timestamp = 5;
+  optional google.protobuf.Timestamp timestamp = 5;
 }

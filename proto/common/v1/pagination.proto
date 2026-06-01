@@ -3,7 +3,7 @@ package common.v1;
 
 import "buf/validate/validate.proto";
 
-message CursorPagionation {
+message CursorPagination {
   optional uint32 limit = 1 [(buf.validate.field).uint32 = {
     gte: 1
     lte: 100

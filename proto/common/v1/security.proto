@@ -2,8 +2,8 @@ syntax = "proto3";
 package common.v1;
 
 import "buf/validate/validate.proto";
-import "common/v1/base.proto";
 import "common/v1/crypto.proto";
+import "google/protobuf/timestamp.proto";
 
 enum KdfAlgorithm {
   KDF_ALGORITHM_UNSPECIFIED = 0;
@@ -22,7 +22,7 @@ message UserEncryptedPayload {
 
 message HighSecurityToken {
   optional string token = 1 [(buf.validate.field).string.max_len = 128];
-  optional Timestamp expires_at = 2;
+  optional google.protobuf.Timestamp expires_at = 2;
   optional string purpose = 3 [(buf.validate.field).string.max_len = 64];
   optional Signature signature = 4;
 }
@@ -30,7 +30,7 @@ message HighSecurityToken {
 message MerkleEvent {
   optional Hash prev_hash = 1;
   optional Signature signature = 2;
-  optional Timestamp timestamp = 3;
+  optional google.protobuf.Timestamp timestamp = 3;
   optional Hash data_hash = 4;
 }
 
