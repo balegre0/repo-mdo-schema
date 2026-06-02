@@ -1,40 +1,70 @@
 syntax = "proto3";
+
 package common.v1;
 
 import "buf/validate/validate.proto";
 
+// CursorPagination manages tokenized stateful record parsing configurations optimized for real-time high-throughput streams.
+// Prevents typical pagination data shift anomalies encountered during concurrent system mutations.
 message CursorPagination {
+  // Volume boundary constraints capping the maximum record block allowed inside a single message payload frame.
   uint32 limit = 1 [(buf.validate.field).uint32 = {
     gte: 1
     lte: 100
   }];
 
+  // Opaque Base64 string cursor encoding database query coordinates tracking index boundary structures.
   string cursor = 2 [(buf.validate.field).string.max_len = 1024];
+
+  // Database index column path mapped to sort execution tracks. Strictly protected against SQL-injection profiles via regex.
   string sort_field = 3 [(buf.validate.field).string = {
     max_len: 64
     pattern: "^[a-zA-Z_][a-zA-Z0-9_\\.]*$"
   }];
+
+  // Inversion sorting command flag. True instructs database routers to execute sorting filters descending.
   bool sort_desc = 4;
 }
 
+// CursorPaginationResponse returns positional navigation vectors allowing callers to continue iterative stream lookups.
 message CursorPaginationResponse {
+  // Opaque tracking string token packing the indexing parameters required to invoke the successive record slice.
   string next_cursor = 1 [(buf.validate.field).string.max_len = 1024];
+
+  // Matrix data capacity indicator. True confirms that additional data rows match standard search parameters.
   bool has_more = 2;
+
+  // Hyper-log-log or estimated indexing count tracking global matching row counts inside database layouts.
   uint64 total_estimate = 3;
 }
 
+// PageBasedPagination maps classic stateless data indexing loops using standard offset calculations.
+// Intended for stable data structures not undergoing massive real-time insertions or transactional deletions.
 message PageBasedPagination {
+  // Target numeric block index position desired by the extraction process. Base 1 indexing rule applies.
   uint32 page = 1 [(buf.validate.field).uint32.gte = 1];
+
+  // Maximum data rows volume allocated to process inside a single block navigation step.
   uint32 page_size = 2 [(buf.validate.field).uint32 = {
     gte: 1
     lte: 100
   }];
 }
 
+// PageBasedPaginationResponse details structural tracking parameters mapping multi-page pagination processing borders.
 message PageBasedPaginationResponse {
+  // The active processing index page coordinate returned within the active server processing payload frame.
   uint32 current_page = 1;
+
+  // Total calculated page increments matching search conditions based on active page_size constraints.
   uint32 total_pages = 2;
+
+  // Absolute exact data record transaction audit count registered inside underlying database entities.
   uint64 total_items = 3;
+
+  // Continuous query indicator flag. True maps that current position sits below upper total_pages limits.
   bool has_next = 4;
+
+  // Retrospective query indicator flag. True maps that current location sits above base page 1 boundaries.
   bool has_prev = 5;
 }

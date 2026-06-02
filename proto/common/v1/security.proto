@@ -1,45 +1,80 @@
 syntax = "proto3";
+
 package common.v1;
 
 import "buf/validate/validate.proto";
 import "common/v1/crypto.proto";
 import "google/protobuf/timestamp.proto";
 
+// KdfAlgorithm tracks authorized cryptographic Key Derivation Functions implementing client-side zero-knowledge security profiles.
 enum KdfAlgorithm {
+  // Uninitialized data value state placeholder mapping an invalid or unsupported derivative routine.
   KDF_ALGORITHM_UNSPECIFIED = 0;
+  // HMAC-based extract-and-expand cryptographic key derivation routine utilizing SHA-256 primitives (RFC 5869).
   KDF_ALGORITHM_HKDF_SHA256 = 1;
+  // Password-Based Key Derivation Function 2 executing intensive pseudo-random hashing iterations over SHA-512 (RFC 8018).
   KDF_ALGORITHM_PBKDF2_SHA512 = 2;
+  // Memory-hard memory-symmetric Argon2id cryptographic algorithm tracking standard profiles (RFC 9106).
   KDF_ALGORITHM_ARGON2ID = 3;
 }
 
+// UserEncryptedPayload structures zero-knowledge client-side encryption data wrappers hidden from platform operations layers.
 message UserEncryptedPayload {
+  // Structural version signature configuration tracking historical modifications inside client encryption logic structures.
   uint32 version = 1 [(buf.validate.field).uint32 = {
     gte: 1
     lte: 2
   }];
+
+  // The mathematical derivation recipe applied to transform entry components into local decryption key matrices.
   KdfAlgorithm kdf_algorithm = 2 [(buf.validate.field).enum.defined_only = true];
+
+  // Ephemeral public parameter components (e.g., Raw Curve25519 public parameters) required during local asymmetric key derivation.
   bytes ephemeral_public_key = 3 [(buf.validate.field).bytes.const = "32"];
+
+  // Authenticated encryption ciphertext block containing private data elements wrapped securely from system operators.
   bytes ciphertext = 4 [(buf.validate.field).bytes.max_len = 65536];
+
+  // Cryptographic key validation tracking proof confirming payload encryption integrity properties before runtime dispatch.
   Hash key_commitment = 5;
 }
 
+// HighSecurityToken protects administrative execution channels by enforcing isolation authorization parameters.
 message HighSecurityToken {
+  // Strict short-lived expiration timeline threshold marking when validation engines must drop execution permissions.
   google.protobuf.Timestamp expires_at = 1;
+
+  // Secure authorization verification payload string (e.g., cryptographically signed PASETO structure).
   string token = 2 [(buf.validate.field).string = {
     min_len: 32
     max_len: 128
   }];
+
+  // Specific operational function constraint tag tracking authorized endpoint logic scopes (e.g., "mfa.override.cedula").
   string purpose = 3 [(buf.validate.field).string.max_len = 64];
+
+  // Asymmetric cryptographic signature proof issued by secure hardware modules to confirm access authorizations.
   Signature signature = 4;
 }
 
+// MerkleEvent charts a single state ledger entry injected inside cryptographically verifiable append-only database networks.
 message MerkleEvent {
+  // Monotonically increasing structural index assigned by transaction serialization ledger authority nodes.
   uint64 event_id = 1;
+
+  // Hardware clock synchronized timestamp tracking when this specific event frame was frozen inside the log chain.
   google.protobuf.Timestamp timestamp = 2;
+
+  // Cryptographic binding path linking history records directly back to the cumulative cryptographic parent frame block.
   Hash prev_hash = 3;
+
+  // Specific cryptographic digest calculated over the isolated parameter elements of this event instance payload.
   Hash data_hash = 4;
+
+  // Corporate administrative verification proof validating data payload origin constraints and structural immutability profiles.
   Signature signature = 5;
 
+  // System assertion validation checking that the event index reflects authoritative backend indexing rules.
   option (buf.validate.message).cel = {
     id: "merkle_event.event_id_nonzero"
     message: "event_id must be > 0 (server-assigned)"
@@ -47,18 +82,27 @@ message MerkleEvent {
   };
 }
 
+// ProofOfWork implements client cryptographic challenge actions designed to rate-limit or mitigate Sybil scraping attempts.
 message ProofOfWork {
+  // Mathematical scanning constraint parameters (e.g., required leading zero-bit allocation properties on output hashes).
   uint32 difficulty = 1 [(buf.validate.field).uint32 = {
     gte: 1
     lte: 32
   }];
+
+  // Opaque high-entropy platform generated random seed challenge matrix anchoring this proof requirement tracking window.
   bytes challenge = 2 [(buf.validate.field).bytes = {
     min_len: 32
     max_len: 64
   }];
+
+  // Structural search iteration nonce payload stepped sequentially by the client mathematical solver application.
   bytes nonce = 3 [(buf.validate.field).bytes.max_len = 64];
+
+  // Final calculated validation payload bitstream proving successful resolution of the cryptographic puzzle.
   bytes solution = 4 [(buf.validate.field).bytes.max_len = 64];
 
+  // Invariant logic check verifying that puzzle verification elements are correctly initialized when proof evaluation is executed.
   option (buf.validate.message).cel = {
     id: "pow.solution_requires_challenge"
     message: "solution requires a non-empty challenge"
@@ -66,18 +110,29 @@ message ProofOfWork {
   };
 }
 
+// ZKProof handles Zero-Knowledge proof cryptographic verification datasets to validate operations parameters without source exposure.
 message ZKProof {
+  // Type indexes non-interactive Zero-Knowledge computational argument system algorithm implementations.
   enum Type {
+    // Uninitialized structural zero state placeholder indicating an invalid ZK profile.
     TYPE_UNSPECIFIED = 0;
+    // Pairing-based Succinct Non-Interactive Argument of Knowledge optimizing for absolute minimum payload sizing (Groth16).
     TYPE_GROTH16 = 1;
+    // Permutations over Lagrange-bases for Evaluation of Functional Equations proving schemes (PLONK).
     TYPE_PLONK = 2;
+    // Highly efficient range-proof arguments system avoiding trusted system setup orchestration overheads (Bulletproofs).
     TYPE_BULLETPROOFS = 3;
   }
 
+  // The active Zero-Knowledge primitive execution structure framing the layout configuration rules of this proof object.
   Type proof_type = 1 [(buf.validate.field).enum.defined_only = true];
+
+  // Raw unencoded binary bitstream map packing the evaluation polynomial metrics of the zero-knowledge argument.
   bytes proof_data = 2 [(buf.validate.field).bytes = {
     min_len: 64
     max_len: 65536
   }];
+
+  // Array collection detailing public tracking coefficients needed to anchor mathematical validation without exposing secrets.
   repeated bytes public_inputs = 3 [(buf.validate.field).repeated.max_items = 32];
 }

@@ -1,55 +1,94 @@
 syntax = "proto3";
+
 package common.v1;
 
 import "buf/validate/validate.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 
+// HealthStatus groups the structural cluster processing health phases mapped across microservices.
 enum HealthStatus {
+  // Uninitialized cluster telemetry tracking state. Node diagnostic context is unreadable or broken.
   HEALTH_STATUS_UNSPECIFIED = 0;
+  // Node operational status clear. Processing active network transactions within nominal SLA thresholds.
   HEALTH_STATUS_HEALTHY = 1;
+  // System context degraded. Node is live but experiencing internal bottlenecks (e.g., IO exhaustion, thread contention).
   HEALTH_STATUS_DEGRADED = 2;
+  // Subsystem structural failure state. Processing loop is broken; node cannot handle active traffic loads safely.
   HEALTH_STATUS_UNHEALTHY = 3;
+  // Node isolated deliberately from scheduling routers to perform manual patches, indexing, or structural migration shifts.
   HEALTH_STATUS_MAINTENANCE = 4;
 }
 
+// SubsystemHealth isolates real-time diagnostic indicators originating from critical system integrations (e.g., Postgres, Redis).
 message SubsystemHealth {
+  // Unique system resource signature tracking index (e.g., "db.cluster-replica.ingress-0").
   string name = 1 [(buf.validate.field).string = {
     min_len: 1
     max_len: 64
   }];
+
+  // Real-time readiness status mapping classification identifying structural stability parameters.
   HealthStatus status = 2 [(buf.validate.field).enum.defined_only = true];
+
+  // Sanitized logging debug context details reporting localized root cause errors when faults arise.
   string message = 3 [(buf.validate.field).string.max_len = 256];
+
+  // Operational latency metrics tracking database transaction execution computed at the 99th percentile window.
   uint32 latency_p99_ms = 4;
+
+  // System wide interaction failure rates calculated as parts-per-million against transaction stream volumes.
   uint64 error_rate_ppm = 5;
 }
 
+// BuildInfo holds immutable application metadata generated during compiler assembly passes.
 message BuildInfo {
+  // Semantic Versioning layout specification tracking standard application version definitions.
   string version = 1 [(buf.validate.field).string = {
     max_len: 32
     pattern: "^\\d+\\.\\d+\\.\\d+.*$"
   }];
+
+  // Git SHA-1 cryptographic tracking hash identifying the precise code commit compiled into this active binary.
   string git_sha = 2 [(buf.validate.field).string = {
     min_len: 7
     max_len: 40
   }];
+
+  // Definitive compilation timestamp marking the clock context when the system linker packed this image payload.
   google.protobuf.Timestamp built_at = 3;
+
+  // Cluster architecture layout classification tag tracking target deployment landscapes (e.g., "dmz-production-dr").
   string build_env = 4 [(buf.validate.field).string.max_len = 32];
 }
 
+// HealthReport provides a unified platform telemetry snapshot detailing memory node states and downstream configurations.
 message HealthReport {
+  // Unified operational state score computed from the structural combination of internal resources.
   HealthStatus status = 1 [(buf.validate.field).enum.defined_only = true];
+
+  // Continuous processor lifetime duration track measuring active runtime process survival tracking metrics.
   uint64 uptime_seconds = 2;
+
+  // Hardware synchronized system clock verification time tracking when this diagnostic snapshot was extracted.
   google.protobuf.Timestamp timestamp = 3;
+
+  // Application compilation metadata bound to the execution environment loop structure.
   BuildInfo build = 4;
+
+  // Cryptographic signature block verifying host origin context to prevent routing spoofing attacks.
   bytes server_signature = 5 [(buf.validate.field).bytes = {
     min_len: 64
     max_len: 72
   }];
 
+  // Detailed telemetry metrics array exposing individual state tracks from auxiliary background resources.
   repeated SubsystemHealth subsystems = 6 [(buf.validate.field).repeated.max_items = 32];
+
+  // Hardware processing timeout allotment thresholds allocated across cluster connectivity bridges.
   google.protobuf.Duration request_timeout = 7;
 
+  // CEL architectural assertion checking that no component can harbor systemic failures if the cluster reports global health.
   option (buf.validate.message).cel = {
     id: "health.healthy_means_no_unhealthy_subsystems"
     message: "if status is HEALTHY, no subsystem can be UNHEALTHY"

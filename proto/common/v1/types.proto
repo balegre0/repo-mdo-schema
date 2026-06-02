@@ -1,80 +1,134 @@
 syntax = "proto3";
+
 package common.v1;
 
 import "buf/validate/validate.proto";
 
+// Priority defines operational task scheduling values and worker queue allocation metrics.
 enum Priority {
+  // Uninitialized zero state value indicator.
   PRIORITY_UNSPECIFIED = 0;
+  // Background processing thread. Executed when platform resource allocation is below standard operational caps.
   PRIORITY_LOW = 1;
+  // Standard priority line assignment configuration matching typical transaction execution parameters.
   PRIORITY_MEDIUM = 2;
+  // High availability prioritizations assigned to time critical user interaction requests.
   PRIORITY_HIGH = 3;
+  // Platform layer failure mitigations needing urgent node execution slots to circumvent SLA degradation hazards.
   PRIORITY_CRITICAL = 4;
+  // Core infrastructure emergency state override. Bypasses task staging arrays to run directly on reserved workers.
   PRIORITY_EMERGENCY = 5;
 }
 
+// Platform tracks customer runtime application ecosystems to configure delivery logic parameters or metrics parsing.
 enum Platform {
+  // Uninitialized or unknown user application workspace tracking reference.
   PLATFORM_UNSPECIFIED = 0;
+  // Web browser context executing application code via standard JavaScript runtimes.
   PLATFORM_WEB = 1;
+  // Native Apple iOS binary execution context environment.
   PLATFORM_IOS = 2;
+  // Native Google Android binary execution context environment.
   PLATFORM_ANDROID = 3;
+  // Programmatic machine-to-machine connection channel routing traffic over standard access credentials.
   PLATFORM_API = 4;
+  // Privileged internal security administrative backend console interface window.
   PLATFORM_ADMIN = 5;
+  // Operator terminal binary command software interface (Command Line Interface).
   PLATFORM_CLI = 6;
 }
 
+// Language charts localization targets according to standard ISO 639-1 alpha-2 language code configurations.
 enum Language {
+  // Uninitialized fallback language code context placeholder.
   LANGUAGE_UNSPECIFIED = 0;
+  // Castilian Spanish dictionary routing parameter initialization token.
   LANGUAGE_SPANISH = 1;
+  // International English dictionary routing parameter initialization token.
   LANGUAGE_ENGLISH = 2;
+  // French language dictionary routing parameter initialization token.
   LANGUAGE_FRENCH = 3;
+  // Haitian Creole language dictionary routing parameter initialization token.
   LANGUAGE_HAITIAN_CREOLE = 4;
 }
 
+// NotificationType maps event propagation profiles to isolate targeted messaging notification channel routers.
 enum NotificationType {
+  // Uninitialized system messaging parameter target value placeholder.
   NOTIFICATION_TYPE_UNSPECIFIED = 0;
+  // Async status mutation context updates alerting users regarding document or report validation updates.
   NOTIFICATION_TYPE_REPORT_UPDATE = 1;
+  // Platform security alerts, system degradation reports, or vital identity access monitoring events.
   NOTIFICATION_TYPE_SYSTEM_ALERT = 2;
+  // Gamification tracking updates reporting promotional rewards allocations or user incentive programmatic events.
   NOTIFICATION_TYPE_REWARD_EARNED = 3;
+  // Microtransaction notification tracking alerting users of point-to-point tipping transfers received on nodes.
   NOTIFICATION_TYPE_TIP_RECEIVED = 4;
 }
 
+// VoteDirection implements directional calculation structures tracking assessment algorithms.
 enum VoteDirection {
+  // Uninitialized rating tracking value placeholder.
   VOTE_DIRECTION_UNSPECIFIED = 0;
+  // Incremental index accumulator evaluation adjustment parameter (+1 unit instruction).
   VOTE_DIRECTION_UP = 1;
+  // Decremental index accumulator evaluation adjustment parameter (-1 unit instruction).
   VOTE_DIRECTION_DOWN = 2;
+  // Explicit weight cancellation parameter cleaning history records from active valuation boundaries (0 weight change).
   VOTE_DIRECTION_REMOVE = 3;
 }
 
+// ClientMetadata packages hardware tracking variables, OS builds, and app version telemetry collected at API entry gates.
 message ClientMetadata {
+  // Active engineering environment profile classification marking the software runtime layer.
   Platform platform = 1 [(buf.validate.field).enum.defined_only = true];
+
+  // Software version string assigned across active deployments (vetted via Semantic Version regex rules).
   string app_version = 2 [(buf.validate.field).string = {
     max_len: 32
     pattern: "^\\d+\\.\\d+\\.\\d+.*$"
   }];
+
+  // Operating system kernel build identifier trace string (e.g., "Darwin 23.5.0", "Linux 6.6.15-amd64").
   string os_version = 3 [(buf.validate.field).string.max_len = 32];
+
+  // Physical device tracking asset configuration label extracted from vendor parameters (e.g., "iPhone16,1").
   string device_model = 4 [(buf.validate.field).string.max_len = 64];
+
+  // Hardware screen layout resolution coordinates mapped to screen geometric tokens (e.g., "1290x2796").
   string screen_size = 5 [(buf.validate.field).string = {
     max_len: 16
     pattern: "^\\d+x\\d+$"
   }];
+
+  // Active IANA Database location timezone configuration context tracking string (e.g., "America/Santo_Domingo").
   string timezone = 6 [(buf.validate.field).string = {
     min_len: 1
     max_len: 64
   }];
+
+  // Localized user preference selection mapping dictionary parsing routing rules.
   Language language = 7 [(buf.validate.field).enum.defined_only = true];
+
+  // Sequential build identifier tracing specific compiler generation cycles.
   uint32 app_build_number = 8;
 }
 
+// DominicanPhone implements phone layout verification structures targeted precisely to the Dominican Republic telecom routing grid.
 message DominicanPhone {
+  // Local dial string notation including regional zone prefix parameters (809, 829, 849) restricted to 10 numerical values.
   string national = 1 [(buf.validate.field).string = {
     pattern: "^(809|829|849)[0-9]{7}$"
     len: 10
   }];
+
+  // Standard international notation structure mapping country code prefixes for global transit channels (e.g., "+18295551234").
   string e164 = 2 [(buf.validate.field).string = {
     pattern: "^\\+1(809|829|849)[0-9]{7}$"
     len: 12
   }];
 
+  // Structural constraint rule forcing data models to contain at least one valid phone sequence track before transmission layers process it.
   option (buf.validate.message).cel = {
     id: "phone.at_least_one_format"
     message: "at least one of national or e164 must be set"
@@ -82,7 +136,9 @@ message DominicanPhone {
   };
 }
 
+// IdempotencyKey embeds unique operational identification hashes checking message repeat actions across network channels.
 message IdempotencyKey {
+  // String identifier representing the idempotency hash. Accepts UUID v4 or ULID characters configurations.
   string value = 1 [(buf.validate.field).string = {
     min_len: 16
     max_len: 64

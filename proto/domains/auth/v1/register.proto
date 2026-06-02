@@ -1,0 +1,155 @@
+syntax = "proto3";
+
+package domains.auth.v1;
+
+import "buf/validate/validate.proto";
+import "common/v1/base.proto";
+import "common/v1/types.proto";
+import "domains/auth/v1/types.proto";
+import "google/protobuf/timestamp.proto";
+
+// RegisterService manages user identity onboarding sequences and primary communications verification.
+service RegisterService {
+  // Consolidates structural identity parameters and tokens to construct a new platform profile entry.
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+  // Executes non-blocking unique index checks over communication paths before ingestion.
+  rpc CheckAvailability(CheckAvailabilityRequest) returns (CheckAvailabilityResponse);
+  // Validates stateless validation string variables to flag email communications as verified.
+  rpc VerifyEmail(VerifyEmailRequest) returns (VerifyEmailResponse);
+  // Re-routes a freshly minted verification challenge token over active SMTP paths.
+  rpc ResendVerificationEmail(ResendVerificationEmailRequest) returns (ResendVerificationEmailResponse);
+}
+
+// RegisterRequest structures configuration vectors, credentials hashes, and telemetry required to initialize profiles.
+message RegisterRequest {
+  // Secure authorization verification token acquired following out-of-band National Cédula verification passes.
+  string verification_token = 1 [(buf.validate.field).string = {
+    min_len: 32
+    max_len: 128
+  }];
+
+  // Digital communication handle used for asynchronous platform alerting and password reset tracks.
+  string email = 2 [(buf.validate.field).string = {
+    pattern: "^[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$"
+    max_len: 254
+  }];
+
+  // Dominican Republic regional telephony routing string matching standard carrier layouts.
+  string phone = 3 [(buf.validate.field).string = {
+    pattern: "^(809|829|849)[0-9]{7}$"
+    len: 10
+  }];
+
+  // Memory-hard password digest bitstream generated via local cryptographic client transformations.
+  bytes password_hash = 4 [(buf.validate.field).bytes = {
+    min_len: 32
+    max_len: 64
+  }];
+
+  // Explicit confirmation flag tracking acceptance of the systemic software terms of use parameters.
+  bool accept_terms = 5;
+
+  // Explicit confirmation flag tracking acceptance of data lifecycle and security privacy parameters.
+  bool accept_privacy = 6;
+
+  // Hardware platform environment tracing tag matching client architectures.
+  string device_id = 7 [(buf.validate.field).string.max_len = 128];
+
+  // Transaction signature string mapping to prevent duplicate resource allocations inside data nodes.
+  string idempotency_key = 8 [(buf.validate.field).string = {
+    min_len: 16
+    max_len: 64
+  }];
+
+  // Client system compilation characteristics collected at the network edge interfaces.
+  common.v1.ClientMetadata client_metadata = 9;
+
+  // Invariant validation ensuring profiles can only be initialized upon confirmation of legal terms.
+  option (buf.validate.message).cel = {
+    id: "register.terms_required"
+    message: "terms and privacy policy must be accepted"
+    expression: "this.accept_terms && this.accept_privacy"
+  };
+}
+
+// RegisterResponse fields return profile indexing vectors and baseline milestones tracking account initialization.
+message RegisterResponse {
+  // Monotonically tracking database system tracking key indexing the freshly constructed profile asset.
+  uint64 user_id = 1;
+
+  // Identity validation clearance status level computed over registration data patterns.
+  common.v1.VerifiedLevel verified_level = 2;
+
+  // Systemic security flag showing if secondary multi-factor structures are active on the account.
+  bool requires_mfa = 3;
+
+  // Definitve server clock snapshot marking when profile rows were committed into persistent tables.
+  google.protobuf.Timestamp created_at = 4;
+
+  // Pending analytical tasks required on the profile to unlock full system capabilities.
+  repeated PendingAction pending_actions = 5 [(buf.validate.field).repeated.max_items = 8];
+}
+
+// CheckAvailabilityRequest isolates specific communication variables to test structural index availability.
+message CheckAvailabilityRequest {
+  oneof identifier {
+    // Communication handle targeting unique index scanning parameters on email columns.
+    string email = 1 [(buf.validate.field).string.max_len = 254];
+    // Communication handle targeting unique index scanning parameters on telephony columns.
+    string phone = 2 [(buf.validate.field).string = {
+      pattern: "^(809|829|849)[0-9]{7}$"
+      max_len: 10
+    }];
+  }
+}
+
+// CheckAvailabilityResponse details structural tracking flags tracking identifier usage records inside datastores.
+message CheckAvailabilityResponse {
+  // Uniqueness evaluation property. True confirms no pre-existing profile blocks current access strings.
+  bool available = 1;
+
+  // Active operational phase classification tracking the profile currently tied to the requested token.
+  AccountStatus account_status = 2;
+}
+
+// VerifyEmailRequest packages raw stateless string parameters targeting verification state changes.
+message VerifyEmailRequest {
+  // Secure high-entropy signature token string fetched from email transit pathways.
+  string token = 1 [(buf.validate.field).string = {
+    min_len: 32
+    max_len: 256
+  }];
+}
+
+// VerifyEmailResponse reports transaction success status vectors following token assertions.
+message VerifyEmailResponse {
+  // Validation status indicator. True logs that the target communication line is verified.
+  bool verified = 1;
+
+  // Precise clock timestamp mapping when verification state engines updated target database rows.
+  google.protobuf.Timestamp verified_at = 2;
+}
+
+// ResendVerificationEmailRequest structures inputs required to re-fire verification emails to data channels.
+message ResendVerificationEmailRequest {
+  // Target communication destination identity mapping verified profile tracks.
+  string email = 1 [(buf.validate.field).string = {
+    pattern: "^[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$"
+    max_len: 254
+  }];
+
+  // Idempotency engine token managing execution tracking over transaction nodes.
+  string idempotency_key = 2 [(buf.validate.field).string = {
+    min_len: 16
+    max_len: 64
+  }];
+}
+
+// ResendVerificationEmailResponse charts operational lifecycles assigned to freshly dispatched token strings.
+message ResendVerificationEmailResponse {
+  // Delivery processing confirmation metric tracking entry inside message broker layers.
+  bool sent = 1;
+
+  // Hard expiration checkpoint mapping when the newly generated verification string drops capability traits.
+  google.protobuf.Timestamp expires_at = 2;
+}

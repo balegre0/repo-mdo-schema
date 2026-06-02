@@ -1,0 +1,169 @@
+syntax = "proto3";
+
+package domains.auth.v1;
+
+import "buf/validate/validate.proto";
+import "common/v1/base.proto";
+import "common/v1/pagination.proto";
+import "common/v1/types.proto";
+import "domains/auth/v1/types.proto";
+import "google/protobuf/timestamp.proto";
+
+// SessionService exposes lifecycle and revocation tracks over active network device context allocations.
+service SessionService {
+  // Retrieves a paginated array containing device sessions linked to the calling identity context.
+  rpc ListSessions(ListSessionsRequest) returns (ListSessionsResponse);
+  // Returns operational metrics detailing the single active channel processing current payload requests.
+  rpc GetCurrentSession(GetCurrentSessionRequest) returns (Session);
+  // Logically terminates a single device access context mapping database structures.
+  rpc RevokeSession(RevokeSessionRequest) returns (RevokeSessionResponse);
+  // Executes cluster wide revocation wipes clearing session access paths.
+  rpc RevokeAllSessions(RevokeAllSessionsRequest) returns (RevokeAllSessionsResponse);
+  // Swaps valid refresh parameters to acquire a clean cryptographic token set.
+  rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
+}
+
+// SessionToken bundles cryptographic tokens returned to modern clients managing stateless authorization parameters.
+message SessionToken {
+  // Bearer token value (e.g., JWT format string) signed by the identity provider layer to authorize endpoints.
+  string access_token = 1;
+
+  // Opaque high-entropy token utilized to hit token rotation lines and fetch fresh access credentials.
+  string refresh_token = 2;
+
+  // Authorization header type scheme assignment parameter. Conforms to canonical "Bearer" pattern structures.
+  string token_type = 3;
+
+  // Precise clock timestamp tracking when current access boundaries terminate validity rules.
+  google.protobuf.Timestamp access_expires_at = 4;
+
+  // Precise clock timestamp tracking when current refresh token parameters lose validation capacity.
+  google.protobuf.Timestamp refresh_expires_at = 5;
+
+  // Operational array detailing active privilege tags compiled into the security descriptor.
+  repeated Permission permissions = 6 [(buf.validate.field).repeated.max_items = 50];
+
+  // Identity validation classification tier verified inside backend lookup structures.
+  common.v1.VerifiedLevel verified_level = 7;
+}
+
+// Session maps persistent state tracking metrics identifying an active authenticated device link.
+message Session {
+  // Unique database primary key entry tracking this session sequence inside state engines.
+  uint64 id = 1;
+
+  // Unique persistent hardware fingerprint string reported by incoming user agents.
+  string device_id = 2 [(buf.validate.field).string.max_len = 128];
+
+  // Human readable device nickname string reported by the app client configuration (e.g., "Sway Terminal x86").
+  string device_name = 3 [(buf.validate.field).string.max_len = 128];
+
+  // Underlying application ecosystem taxonomy parameter identifying the connecting software framework.
+  common.v1.Platform platform = 4 [(buf.validate.field).enum.defined_only = true];
+
+  // Network tracking string mapping the last known egress source interface IP address (supports IPv4/IPv6 widths).
+  string ip_address = 5 [(buf.validate.field).string.max_len = 45];
+
+  // Coarse geographic placement text resolved via IP routing topology parsing layers (e.g., "Santo Domingo, DO").
+  string location = 6 [(buf.validate.field).string.max_len = 128];
+
+  // Raw user-agent string headers extracted at API gateways during connection handshakes.
+  string user_agent = 7 [(buf.validate.field).string.max_len = 256];
+
+  // Temporal clock snapshot tracing when the initial validation handshake occurred.
+  google.protobuf.Timestamp created_at = 8;
+
+  // Temporal clock snapshot tracking when the device last hit application network routers.
+  google.protobuf.Timestamp last_active_at = 9;
+
+  // Hard lifecycle deadline marking when the session tracking token drops from memory pools.
+  google.protobuf.Timestamp expires_at = 10;
+
+  // Boolean evaluation property confirming if this instance matches the active payload processing context.
+  bool is_current = 11;
+}
+
+// ListSessionsRequest holds pagination and filter values required to audit device tracking lists.
+message ListSessionsRequest {
+  // Token navigation settings adjusting record parsing metrics inside database lookups.
+  common.v1.CursorPagination pagination = 1;
+
+  // Boolean visibility modifier toggle. True commands engines to return dead, revoked, or expired records.
+  bool include_inactive = 2;
+}
+
+// ListSessionsResponse houses a dataset containing individual session tracking items alongside navigation vectors.
+message ListSessionsResponse {
+  // Dataset collection tracking individual device connectivity sessions.
+  repeated Session sessions = 1 [(buf.validate.field).repeated.max_items = 50];
+
+  // Cursor translation markers mapping boundary lines for sequence iterations.
+  common.v1.CursorPaginationResponse pagination = 2;
+}
+
+// RevokeSessionRequest frames target index parameters and security reasons needed to clear an access entry.
+message RevokeSessionRequest {
+  enum RevokeReason {
+    // Unassigned zero code identifier.
+    REVOKE_REASON_UNSPECIFIED = 0;
+    // Explicit user authorization cancellation command (standard click-logout sequences).
+    REVOKE_REASON_USER_INITIATED = 1;
+    // Security alert triggered. Session terminated due to anomalous geographic jumping or credential hazards.
+    REVOKE_REASON_SECURITY_BREACH = 2;
+    // Administrative device lifecycle change triggered directly by owner actions.
+    REVOKE_REASON_DEVICE_LOST = 3;
+    // Administrative enforcement action executed by support personnel.
+    REVOKE_REASON_ADMIN_ACTION = 4;
+  }
+
+  // The primary database index identity parameter tracking the target session entry to drop.
+  uint64 session_id = 1 [(buf.validate.field).uint64.gt = 0];
+
+  // Diagnostic metadata categorization logging why authorization structures were unlinked.
+  RevokeReason reason = 2 [(buf.validate.field).enum.defined_only = true];
+}
+
+// RevokeSessionResponse returns verification parameters confirming the destruction of authorization entries.
+message RevokeSessionResponse {
+  // Unified server clock checkpoint marking when session parameters were invalidated across clusters.
+  google.protobuf.Timestamp revoked_at = 1;
+}
+
+// RevokeAllSessionsRequest handles administrative variables needed to clear multi-node authorization traces.
+message RevokeAllSessionsRequest {
+  // Protective isolation toggle. True instructs engines to maintain the current channel while dropping secondary links.
+  bool exclude_current = 1;
+}
+
+// RevokeAllSessionsResponse reports total execution volume counts cleared across cluster networks.
+message RevokeAllSessionsResponse {
+  // Total transaction row count containing session tokens cleared out of datastores.
+  uint32 revoked_count = 1;
+
+  // Unified platform clock timestamp tracing when the collection wipe processing cleared.
+  google.protobuf.Timestamp revoked_at = 2;
+}
+
+// RefreshTokenRequest holds stateless cryptographic refresh parameters submitted to maintain active authorization tracks.
+message RefreshTokenRequest {
+  // Cryptographic long-lived string token used to request fresh access sets.
+  string refresh_token = 1 [(buf.validate.field).string = {
+    min_len: 32
+    max_len: 512
+  }];
+
+  // Hardware parameter index identifier verifying device consistency properties across token rotation passes.
+  string device_id = 2 [(buf.validate.field).string.max_len = 128];
+}
+
+// RefreshTokenResponse supplies fresh token arrays and updates regarding rotation state machines.
+message RefreshTokenResponse {
+  // Newly minted access and refresh credentials packed inside structural wrappers.
+  SessionToken token = 1;
+
+  // Security rotation metric. True indicates a single-use token rotation pass successfully executed.
+  bool rotated = 2;
+}
+
+// GetCurrentSessionRequest handles standard parameters needed to map processing contexts.
+message GetCurrentSessionRequest {}

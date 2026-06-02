@@ -1,39 +1,64 @@
 syntax = "proto3";
+
 package common.v1;
 
 import "buf/validate/validate.proto";
 import "google/protobuf/timestamp.proto";
 
+// Geolocation represents a specific geospatial point coordinates on the WGS 84 ellipsoid.
+// Integrates physical telemetry metrics with hardware tracking provenance attributes.
 message Geolocation {
+  // Source categorizes the physical or algorithmic subsystem that captured or calculated the coordinates.
+  enum Source {
+    // Fallback default value. Execution tracking context is missing or uninitialized.
+    SOURCE_UNSPECIFIED = 0;
+    // Spatial frame calculated via global navigation satellite systems (GNSS/GPS hardware).
+    SOURCE_GPS = 1;
+    // Position inferred from active cellular network topology or Wi-Fi base station triangulation.
+    SOURCE_NETWORK = 2;
+    // Algorithmic estimation fusing multiple physical sensor vectors (IMU, GPS, and wheel encoders).
+    SOURCE_FUSED = 3;
+    // Administrative input injection or deliberate logical override from an operator.
+    SOURCE_MANUAL = 4;
+  }
+
+  // Latitude component in decimal degrees. Constrained mathematically to the earth's polar boundaries.
   double lat = 1 [(buf.validate.field).double = {
     gte: -90.0
     lte: 90.0
   }];
+
+  // Longitude component in decimal degrees. Constrained to the earth's meridian boundaries.
   double lon = 2 [(buf.validate.field).double = {
     gte: -180.0
     lte: 180.0
   }];
+
+  // High-performance location grid cell token (e.g., Uber H3 spatial index or Google S2 cell key).
   uint64 grid_index = 3;
+
+  // Spatial elevation vector indicating height above the reference ellipsoid surface measured in meters.
   float alt = 4;
+
+  // Statistical confidence boundary radius matching a 95% circular error probable accuracy scale.
   float accuracy = 5 [(buf.validate.field).float = {
     gte: 0.0
     lte: 50000.0
   }];
+
+  // Ground speed scalar representing velocity across the spatial frame measured in meters per second.
   float speed = 6 [(buf.validate.field).float = {
     gte: 0.0
     lte: 1000.0
   }];
+
+  // Directional azimuth track indicating clockwise angular displacement from true north.
   uint32 heading = 7;
 
-  enum Source {
-    SOURCE_UNSPECIFIED = 0;
-    SOURCE_GPS = 1;
-    SOURCE_NETWORK = 2;
-    SOURCE_FUSED = 3;
-    SOURCE_MANUAL = 4;
-  }
+  // The diagnostic tracking classification tracking how this spatial instance was originated.
   Source source = 8 [(buf.validate.field).enum.defined_only = true];
 
+  // Structural constraint rule ensuring the azimuth track falls strictly within standard rotational bounds.
   option (buf.validate.message).cel = {
     id: "geolocation.heading_range"
     message: "heading must be 0–359 degrees"
@@ -41,34 +66,47 @@ message Geolocation {
   };
 }
 
+// BoundingBox isolates a localized geographic search target matrix using its limiting borders.
 message BoundingBox {
+  // Northern boundary line latitude threshold tracking the upper perimeter of the target box.
   double north = 1 [(buf.validate.field).double = {
     gte: -90.0
     lte: 90.0
   }];
+
+  // Southern boundary line latitude threshold tracking the lower perimeter of the target box.
   double south = 2 [(buf.validate.field).double = {
     gte: -90.0
     lte: 90.0
   }];
+
+  // Eastern boundary line longitude threshold tracking the right side limits of the target box.
   double east = 3 [(buf.validate.field).double = {
     gte: -180.0
     lte: 180.0
   }];
+
+  // Western boundary line longitude threshold tracking the left side limits of the target box.
   double west = 4 [(buf.validate.field).double = {
     gte: -180.0
     lte: 180.0
   }];
 
+  // Spatial alignment check guaranteeing the north perimeter sits above or equal to the south axis.
   option (buf.validate.message).cel = {
     id: "bounding_box.north_ge_south"
     message: "north must be >= south"
     expression: "!has(this.north) || !has(this.south) || this.north >= this.south"
   };
+
+  // Spatial alignment check guaranteeing the east perimeter sits right of or equal to the west axis.
   option (buf.validate.message).cel = {
     id: "bounding_box.east_ge_west"
     message: "east must be >= west"
     expression: "!has(this.east)  || !has(this.west)  || this.east  >= this.west"
   };
+
+  // Geometric invariant validation forcing the bounding box to encapsulate a physical valid area.
   option (buf.validate.message).cel = {
     id: "bounding_box.nonzero_area"
     message: "bounding box must have non-zero area"
@@ -76,42 +114,70 @@ message BoundingBox {
   };
 }
 
+// VerifiedLevel models the administrative confidence and cryptographic compliance tier matching an identity.
 enum VerifiedLevel {
+  // Uninitialized zero-trust state. Default fallback categorization.
   VERIFIED_LEVEL_UNSPECIFIED = 0;
+  // Raw unvalidated identity input. Data has been stated but not mapped against external records.
   VERIFIED_LEVEL_UNVERIFIED = 1;
+  // Structural checking layer completed successfully (e.g., active communication channel validated).
   VERIFIED_LEVEL_BASIC = 2;
+  // Rigorous authentication verification fully executed against authoritative administrative registries.
   VERIFIED_LEVEL_FULL = 3;
 }
 
+// Error maps system-wide exception telemetry details across distributed application boundaries.
 message Error {
+  // Code establishes canonical domain-agnostic failure groups matching systemic runtime execution traps.
   enum Code {
+    // Unhandled system boundary exception state. Core category parsing failed.
     CODE_UNSPECIFIED = 0;
+    // Execution dropped due to missing, invalid, or cryptographically broken authentication tokens.
     CODE_UNAUTHORIZED = 1;
+    // Transaction rejected because traffic limits or API quota budgets were fully exhausted.
     CODE_RATE_LIMIT_EXCEEDED = 2;
+    // Financial execution context terminated due to account parameters dropping below zero bounds.
     CODE_INSUFFICIENT_FUNDS = 3;
+    // State machine engine rejected processing because requested operation invalidates active state rules.
     CODE_INVALID_STATE_TRANSITION = 4;
+    // Cascading failure protective barrier tripped. Downstream structural processing is isolated.
     CODE_CIRCUIT_BREAKER_TRIPPED = 5;
+    // Primary index or target identifier resource could not be matched within operational databases.
     CODE_RESOURCE_NOT_FOUND = 6;
+    // Ingress input properties evaluated before execution failed validation system boundaries.
     CODE_PRECONDITION_FAILED = 7;
+    // Access permission tree dropped, context capability matrix was administratively revoked.
     CODE_CAPABILITY_REVOKED = 8;
+    // Incoming serialization stream aborted because bytes payload exceeded memory frame bounds.
     CODE_INVALID_PAYLOAD_SIZE = 9;
+    // Execution environment encountered a critical memory panic, trap signal, or segmentation core dump.
     CODE_INTERNAL_PANIC = 10;
+    // Schema parser or message validation fields violated structural syntax definitions.
     CODE_VALIDATION_FAILED = 11;
+    // Idempotency token evaluation tracking identified a duplicate execution block already processing.
     CODE_DUPLICATE_REQUEST = 12;
+    // Target computing cluster or backing microservice node is physically offline, shifting, or dead.
     CODE_SERVICE_UNAVAILABLE = 13;
   }
 
+  // RetryStrategy isolates transient error tracking properties to optimize automated network backoff routing.
   message RetryStrategy {
+    // Total threshold allowance defining maximum client iteration executions before execution fails terminally.
     uint32 max_attempts = 1 [(buf.validate.field).uint32 = {
       gte: 1
       lte: 10
     }];
+
+    // Core initial delay window tracking base wait state timing interval measured in milliseconds.
     uint32 initial_delay_ms = 2 [(buf.validate.field).uint32.lte = 60000];
+
+    // Exponential multiplication scale factor engine applied across consecutive retry iterations.
     float backoff_factor = 3 [(buf.validate.field).float = {
       gte: 1.0
       lte: 10.0
     }];
 
+    // Timing logic check checking that a real waiting window exists if multiple execution actions are scheduled.
     option (buf.validate.message).cel = {
       id: "retry.delay_required_for_multiple_attempts"
       message: "initial_delay_ms must be > 0 when max_attempts > 1"
@@ -119,24 +185,46 @@ message Error {
     };
   }
 
+  // Canonical classification code mapping the precise structural category of this processing exception.
   Code code = 1 [(buf.validate.field).enum.defined_only = true];
+
+  // Structural flag tracking if fault is transient. True indicates execution can safely be rerun via RetryStrategy.
   bool recoverable = 2;
+
+  // Operational backoff policy properties defining processing rules optimized for error self-healing.
   RetryStrategy retry_strategy = 3;
+
+  // Monotonically tracked platform ingress request index mapped at the network boundary routing infrastructure.
   uint64 request_id = 4;
+
+  // Distributed systems span tracking tracing signature link matching parent trace graphs (W3C traceparent standard).
   uint64 trace_id = 5;
+
+  // Human-readable detailed context text reporting localized diagnostic insights safe for visibility layers.
   string contextual_message = 6 [(buf.validate.field).string.max_len = 512];
+
+  // Granular structural collection tracking exactly which parameters failed programmatic rule evaluations.
   repeated FieldViolation violations = 7 [(buf.validate.field).repeated.max_items = 64];
 
+  // FieldViolation details syntax failures pinpointing exactly which attribute parameter broke schema rules.
   message FieldViolation {
+    // Structural dot-notation map path isolating the precise schema violation coordinates (e.g., "auth.cedula").
     string field_path = 1 [(buf.validate.field).string.max_len = 256];
+
+    // Explicit localized error text definition tracking the cause of why structural constraint rules rejected input.
     string message = 2 [(buf.validate.field).string.max_len = 256];
   }
 }
 
+// TimeRange tracks a bounded continuous timeline slice anchored via strict microsecond-accuracy temporal borders.
 message TimeRange {
+  // Epoch relative timestamp marking the precise inclusive activation start boundary line of the tracking sequence.
   google.protobuf.Timestamp start = 1;
+
+  // Epoch relative timestamp marking the precise exclusive deactivation termination boundary line of the tracking sequence.
   google.protobuf.Timestamp end = 2;
 
+  // Chronological verification rule ensuring the start boundary timeline position precedes the end timeline position.
   option (buf.validate.message).cel = {
     id: "time_range.start_before_end"
     message: "start must be before end"

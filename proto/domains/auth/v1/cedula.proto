@@ -1,0 +1,220 @@
+syntax = "proto3";
+
+package domains.auth.v1;
+
+import "buf/validate/validate.proto";
+import "common/v1/crypto.proto";
+import "common/v1/security.proto";
+import "google/protobuf/timestamp.proto";
+
+// CedulaServices exposes high-assurance identity validation routines against official registries.
+service CedulaService {
+  // Ingests verification vectors and challenges to instantiate a multi-factor identity validation track.
+  rpc StartVerification(StartVerificationRequest) returns (StartVerificationResponse);
+  // Evaluates state progress over a pre-existing identity check tracking code.
+  rpc GetStatus(GetStatusRequest) returns (StartVerificationResponse);
+  // Dispatches a dynamic short-lived token to an official communication channel linked to the target identity.
+  rpc RequestOtp(RequestOtpRequest) returns (RequestOtpResponse);
+  // Checks token integrity proofs to terminally clear and lock identity validation tiers.
+  rpc VerifyOtp(VerifyOtpRequest) returns (VerifyOtpResponse);
+}
+
+// Cedula houses authenticated, normalized data payloads synced from authoritative government registries.
+message Cedula {
+  // Gender defines the legal gender identity for the identification document.
+  enum Gender {
+    // Zero state fallback mapping an uninitialized tracking token.
+    GENDER_UNSPECIFIED = 0;
+    // Identifies masculine biometric profile assignment records.
+    GENDER_MALE = 1;
+    // Identifies feminine biometric profile assignment records.
+    GENDER_FEMALE = 2;
+  }
+
+  // Strictly formatted national identity registration string (matches standard DR XXX-XXXXXXX-X format).
+  string normalized = 1 [(buf.validate.field).string = {
+    pattern: "^[0-9]{3}-[0-9]{7}-[0-9]{1}$"
+    len: 13
+  }];
+
+  // Official primary name fields verified at source registry systems.
+  string verified_name = 2 [(buf.validate.field).string.max_len = 100];
+
+  // Official paternal surname tracking variable verified at source registry systems.
+  string verified_last_name = 3 [(buf.validate.field).string.max_len = 100];
+
+  // Official maternal surname tracking variable verified at source registry systems.
+  string verified_maternal_last = 4 [(buf.validate.field).string.max_len = 100];
+
+  // Legal birth registration date formatted strictly under standard ISO 8601 (YYYY-MM-DD).
+  string verified_birth_date = 5 [(buf.validate.field).string = {
+    pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    max_len: 10
+  }];
+
+  // Biometric assignment property mapped to legal records.
+  Gender verified_gender = 6 [(buf.validate.field).enum.defined_only = true];
+
+  // Sovereign nation assignment string verified at database registries.
+  string verified_nationality = 7 [(buf.validate.field).string.max_len = 64];
+
+  // HMAC or digest payload verifying that this message content was originated by an authorized worker.
+  common.v1.Hash verification_hash = 8;
+
+  // Cryptographic anonymized lookup value allowing unique database index matching without storing cleartext numbers (e.g., Argon2id format output).
+  bytes blind_index = 9 [(buf.validate.field).bytes = {len: 32}];
+}
+
+// StartVerificationRequest isolates identification arguments and computational resource proofs needed to execute identity runs.
+message StartVerificationRequest {
+  // Input tracking parameter holding the target identification string (supports variable formatting entries).
+  string cedula_number = 1 [(buf.validate.field).string = {
+    pattern: "^[0-9]{3}-?[0-9]{7}-?[0-9]{1}$"
+    max_len: 13
+  }];
+
+  // Stated name parameters used by validation matching algorithms to calculate semantic distances.
+  string full_name = 2 [(buf.validate.field).string.max_len = 200];
+
+  // Stated temporal date of birth argument used during matching passes. Formatted as YYYY-MM-DD.
+  string date_of_birth = 3 [(buf.validate.field).string = {
+    pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    max_len: 10
+  }];
+
+  // Hardware platform fingerprint signature tracking hardware parameters to control extraction rate thresholds.
+  string device_id = 4 [(buf.validate.field).string.max_len = 128];
+
+  // Client high-entropy nonce preventing tracking replay vector injections during transaction processing.
+  string client_nonce = 5 [(buf.validate.field).string = {
+    min_len: 16
+    max_len: 64
+  }];
+
+  // Anti-automation task metrics verifying processing investment from the edge.
+  common.v1.ProofOfWork pow = 6;
+
+  // Zero-Knowledge succinct proof package evaluating attribute assertions without database value exposure.
+  common.v1.ZKProof zk_proof = 7;
+
+  // Structural execution validation ensuring identifying inputs exist or zero-knowledge data matches parameters.
+  option (buf.validate.message).cel = {
+    id: "cedula.start.requires_cedula_or_zk"
+    message: "cedula_number or zk_proof must be provided"
+    expression: "size(this.cedula_number) > 0 || has(this.zk_proof)"
+  };
+}
+
+// StartVerificationResponse returns state assessment summaries and matching values computed over identity registries.
+message StartVerificationResponse {
+  enum Status {
+    // Uninitialized pipeline code tracking value.
+    STATUS_UNSPECIFIED = 0;
+    // Identity challenge received, verification engine initializing tasks.
+    STATUS_PENDING = 1;
+    // Active checking processes operating concurrently against remote systems.
+    STATUS_IN_PROGRESS = 2;
+    // Verification parameters successfully matched and locked at highest trust levels.
+    STATUS_VERIFIED = 3;
+    // Check terminated due to severe delta variation between stated vectors and registry records.
+    STATUS_MISMATCH = 4;
+    // The target tracking identifier does not exist within registry sets.
+    STATUS_NOT_FOUND = 5;
+    // Pipeline tracking record expired before data mapping phases completed.
+    STATUS_EXPIRED = 6;
+    // Administrative system block triggered. Pipeline execution canceled.
+    STATUS_REJECTED = 7;
+  }
+
+  // System-assigned tracking identifier managing this specific check transaction log instance.
+  uint64 verification_id = 1;
+
+  // The operational state value mapping current conditions within the parsing pipeline.
+  Status status = 2 [(buf.validate.field).enum.defined_only = true];
+
+  // Boolean match matrix tracking if string parsing algorithms cleared name structures.
+  bool matched_name = 3;
+
+  // Boolean match matrix tracking if target birth parameters hit authoritative data coordinates exactly.
+  bool matched_dob = 4;
+
+  // Risk assessment scoring value scaling from 0 (Null Threat) to 100 (Terminal Fraud Danger).
+  uint32 risk_score = 5 [(buf.validate.field).uint32.lte = 100];
+
+  // Precise timestamp mapping when the checking run transitioned into a definitive final phase.
+  google.protobuf.Timestamp validated_at = 6;
+
+  // Expiration boundary timeline coordinate tracing when validation parameters lose trust clearance.
+  google.protobuf.Timestamp expires_at = 7;
+
+  // Official sanitized identity values mapping data payloads parsed from government database sets.
+  Cedula official_data = 8;
+}
+
+// RequestOtpRequest builds the transmission parameter arguments required to issue out-of-band codes.
+message RequestOtpRequest {
+  enum OtpMethod {
+    // Invalid selection placeholder.
+    OTP_METHOD_UNSPECIFIED = 0;
+    // Dispatches token strings via global short message service telecom pathways.
+    OTP_METHOD_SMS = 1;
+    // Dispatches verification vectors via SMTP/electronic mail relays.
+    OTP_METHOD_EMAIL = 2;
+    // Triggers text-to-speech telephony audio calls to deliver numbers via voice.
+    OTP_METHOD_VOICE = 3;
+  }
+
+  // The unique system-assigned tracking index tracking the authenticated verification transaction session.
+  uint64 verification_id = 1 [(buf.validate.field).uint64.gt = 0];
+
+  // Target delivery channel engine assigned to move the dynamic challenge payload out-of-band.
+  OtpMethod method = 2 [(buf.validate.field).enum = {
+    defined_only: true
+    not_in: [0]
+  }];
+}
+
+// RequestOtpResponse details systemic scheduling bounds and attempt allowance balances for out-of-band tracking.
+message RequestOtpResponse {
+  // Epoch lifetime timestamp tracking when the dispatched code becomes completely invalid on checking engines.
+  google.protobuf.Timestamp expires_at = 1;
+
+  // Anti-spam throttling metric tracking exactly when the client application can request a retry task sequence.
+  google.protobuf.Timestamp next_attempt_at = 2;
+
+  // Remaining transactional balance allowed before security lock downs block current verification channels.
+  uint32 attempts_remaining = 3;
+}
+
+// VerifyOtpRequest structures validation proofs submitted by callers to clear outstanding out-of-band tokens.
+message VerifyOtpRequest {
+  // The system-assigned checking identifier anchoring this validation execution run.
+  uint64 verification_id = 1 [(buf.validate.field).uint64.gt = 0];
+
+  // Numeric verification sequence string submitted by the user. Formatted strictly as 6 numerical digits.
+  string code = 2 [(buf.validate.field).string = {
+    pattern: "^[0-9]{6}$"
+    len: 6
+  }];
+}
+
+// VerifyOtpResponse returns authorization status metrics generated following out-of-band token assessments.
+message VerifyOtpResponse {
+  // Boolean indicator flag confirming if code validation evaluation executed cleanly.
+  bool valid = 1;
+
+  // Remaining code ingestion token attempts remaining on current verification tracking nodes.
+  uint32 attempts_remaining = 2;
+
+  // Operational deadline mapping when current verification parameters lose authorization trust.
+  google.protobuf.Timestamp expires_at = 3;
+
+  // Secure short-lived high-entropy authorization string given upon success to execute registration calls.
+  string verification_token = 4 [(buf.validate.field).string.max_len = 128];
+}
+
+// GetStatusRequest handles database parameters needed to execute lookup sequences over transaction indexes.
+message GetStatusRequest {
+  // Operational identity pointer index tracking the target check instance.
+  uint64 verification_id = 1 [(buf.validate.field).uint64.gt = 0];
+}
