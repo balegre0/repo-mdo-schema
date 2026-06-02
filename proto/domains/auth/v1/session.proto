@@ -14,7 +14,7 @@ service SessionService {
   // Retrieves a paginated array containing device sessions linked to the calling identity context.
   rpc ListSessions(ListSessionsRequest) returns (ListSessionsResponse);
   // Returns operational metrics detailing the single active channel processing current payload requests.
-  rpc GetCurrentSession(GetCurrentSessionRequest) returns (Session);
+  rpc GetCurrentSession(GetCurrentSessionRequest) returns (GetCurrentSessionResponse);
   // Logically terminates a single device access context mapping database structures.
   rpc RevokeSession(RevokeSessionRequest) returns (RevokeSessionResponse);
   // Executes cluster wide revocation wipes clearing session access paths.
@@ -83,6 +83,12 @@ message Session {
   bool is_current = 11;
 }
 
+// GetCurrentSessionResponse structures the returned data payload containing active session contextual states.
+message GetCurrentSessionResponse {
+  // The active session model metadata mapping current caller parameters.
+  Session session = 1;
+}
+
 // ListSessionsRequest holds pagination and filter values required to audit device tracking lists.
 message ListSessionsRequest {
   // Token navigation settings adjusting record parsing metrics inside database lookups.
@@ -103,6 +109,7 @@ message ListSessionsResponse {
 
 // RevokeSessionRequest frames target index parameters and security reasons needed to clear an access entry.
 message RevokeSessionRequest {
+  // RevokeReason logs the systemic or user-driven cause for unlinking a tracking context.
   enum RevokeReason {
     // Unassigned zero code identifier.
     REVOKE_REASON_UNSPECIFIED = 0;

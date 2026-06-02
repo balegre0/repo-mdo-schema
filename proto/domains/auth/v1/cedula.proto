@@ -7,12 +7,12 @@ import "common/v1/crypto.proto";
 import "common/v1/security.proto";
 import "google/protobuf/timestamp.proto";
 
-// CedulaServices exposes high-assurance identity validation routines against official registries.
+// CedulaService exposes high-assurance identity validation routines against official registries.
 service CedulaService {
   // Ingests verification vectors and challenges to instantiate a multi-factor identity validation track.
   rpc StartVerification(StartVerificationRequest) returns (StartVerificationResponse);
   // Evaluates state progress over a pre-existing identity check tracking code.
-  rpc GetStatus(GetStatusRequest) returns (StartVerificationResponse);
+  rpc GetStatus(GetStatusRequest) returns (GetStatusResponse);
   // Dispatches a dynamic short-lived token to an official communication channel linked to the target identity.
   rpc RequestOtp(RequestOtpRequest) returns (RequestOtpResponse);
   // Checks token integrity proofs to terminally clear and lock identity validation tiers.
@@ -107,6 +107,7 @@ message StartVerificationRequest {
 
 // StartVerificationResponse returns state assessment summaries and matching values computed over identity registries.
 message StartVerificationResponse {
+  // Status defines the current operational phase of the verification pipeline execution.
   enum Status {
     // Uninitialized pipeline code tracking value.
     STATUS_UNSPECIFIED = 0;
@@ -151,8 +152,36 @@ message StartVerificationResponse {
   Cedula official_data = 8;
 }
 
+// GetStatusResponse encapsulates the tracking telemetry returned on checking pre-existing identification operations.
+message GetStatusResponse {
+  // System-assigned tracking identifier managing this specific check transaction log instance.
+  uint64 verification_id = 1;
+
+  // The operational state value mapping current conditions within the parsing pipeline.
+  StartVerificationResponse.Status status = 2 [(buf.validate.field).enum.defined_only = true];
+
+  // Boolean match matrix tracking if string parsing algorithms cleared name structures.
+  bool matched_name = 3;
+
+  // Boolean match matrix tracking if target birth parameters hit authoritative data coordinates exactly.
+  bool matched_dob = 4;
+
+  // Risk assessment scoring value scaling from 0 (Null Threat) to 100 (Terminal Fraud Danger).
+  uint32 risk_score = 5 [(buf.validate.field).uint32.lte = 100];
+
+  // Precise timestamp mapping when the checking run transitioned into a definitive final phase.
+  google.protobuf.Timestamp validated_at = 6;
+
+  // Expiration boundary timeline coordinate tracing when validation parameters lose trust clearance.
+  google.protobuf.Timestamp expires_at = 7;
+
+  // Official sanitized identity values mapping data payloads parsed from government database sets.
+  Cedula official_data = 8;
+}
+
 // RequestOtpRequest builds the transmission parameter arguments required to issue out-of-band codes.
 message RequestOtpRequest {
+  // OtpMethod defines the delivery channels available for routing short-lived tokens.
   enum OtpMethod {
     // Invalid selection placeholder.
     OTP_METHOD_UNSPECIFIED = 0;

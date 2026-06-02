@@ -26,6 +26,7 @@ service LoginService {
 
 // LoginCredential handles unified polymorphic access parameters using distinct cryptographic strategies.
 message LoginCredential {
+  // method isolates the specific cryptographic or communication pipeline chosen to execute authentication actions.
   oneof method {
     // Canonical authentication routing strategy using matching email and password structures.
     EmailPassword email_password = 1;
@@ -95,6 +96,7 @@ message LoginRequest {
 
 // LoginResponse routes execution outputs into definitive transaction tracks (Success or Secondary Verification Step).
 message LoginResponse {
+  // result controls the state tracking tree branches determining if access is terminal or requires factor step-ups.
   oneof result {
     // Verification parameters cleared completely. Authentication processing completed successfully.
     Success success = 1;

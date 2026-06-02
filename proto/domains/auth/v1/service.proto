@@ -12,7 +12,7 @@ import "google/protobuf/timestamp.proto";
 // AuthService handles target profile metadata extractions, security updates, and account termination sequences.
 service AuthService {
   // Returns account telemetry and personal metadata matching the authenticated caller context.
-  rpc GetProfile(GetProfileRequest) returns (UserProfile);
+  rpc GetProfile(GetProfileRequest) returns (GetProfileResponse);
   // Updates legal credentials blocks inside storage systems following primary factor matches.
   rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse);
   // Triggers password reset tokens routed over active email or telephony transit networks.
@@ -71,6 +71,12 @@ message UserProfile {
   repeated Role roles = 12 [(buf.validate.field).repeated.max_items = 10];
 }
 
+// GetProfileResponse maps the contextual asset parameters wrapped inside identity data streams.
+message GetProfileResponse {
+  // The complete data definition structure tracking profile attributes.
+  UserProfile profile = 1;
+}
+
 // ChangePasswordRequest packages client cryptographic credential blocks to execute rotational updates.
 message ChangePasswordRequest {
   // Current active password hash bitstream utilized to verify ownership parameters before rewrite operations execution.
@@ -113,6 +119,7 @@ message ChangePasswordResponse {
 
 // RequestPasswordResetRequest establishes targets and tokens required to dispatch out-of-band recovery links.
 message RequestPasswordResetRequest {
+  // identifier specifies the dynamic transmission channel scanned to route recovery tracking markers.
   oneof identifier {
     // Unique indexing target communication channel utilizing email structures.
     string email = 1 [(buf.validate.field).string.max_len = 254];
@@ -180,6 +187,7 @@ message InitMfaSetupRequest {
 
 // InitMfaSetupResponse maps setup metadata structures and configurations matching targeted MFA methods.
 message InitMfaSetupResponse {
+  // setup_data holds the explicit cryptographic payloads customized per selected verification technique.
   oneof setup_data {
     // Structural parameters required to link standard TOTP applications running key derivation layers.
     TotpSetup totp = 1;

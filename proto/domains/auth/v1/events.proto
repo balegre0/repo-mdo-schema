@@ -12,6 +12,7 @@ import "google/protobuf/timestamp.proto";
 
 // UserRegisteredEvent records initial profile initialization markers committed onto verifiable append-only data logs.
 message UserRegisteredEvent {
+  // VerificationMethod defines the strategic onboarding protocol used to clear the user.
   enum VerificationMethod {
     // Unassigned zero state placeholder mapping unlogged onboarding methods.
     VERIFICATION_METHOD_UNSPECIFIED = 0;
@@ -51,6 +52,7 @@ message UserRegisteredEvent {
 
 // UserVerifiedEvent logs shifts updating systemic trust levels inside identity tracking architectures.
 message UserVerifiedEvent {
+  // VerificationMethod models the cryptographic check routines executed to expand user trust limits.
   enum VerificationMethod {
     // Zero state unlogged verification code.
     VERIFICATION_METHOD_UNSPECIFIED = 0;
@@ -86,6 +88,7 @@ message UserVerifiedEvent {
 
 // LoginEvent maps metrics logging access control handshakes passing API entry barriers.
 message LoginEvent {
+  // FailureReason catalogs authorization block criteria or credential validation breakdowns.
   enum FailureReason {
     // Unassigned state logging zero errors.
     FAILURE_REASON_UNSPECIFIED = 0;
@@ -132,12 +135,13 @@ message LoginEvent {
   // Analytics threat parameter flag. True flags an unrecorded hardware environment configuration tracking history.
   bool is_new_device = 9;
 
-  // Verifiable cryptographic event ledger block tracking integrity states across cluster groups.
+  // Verifiable cryptographic event ledger block guaranteeing data history immutability.
   common.v1.MerkleEvent merkle = 10;
 }
 
 // SessionRevokedEvent tracks device unlinking operations executed inside connection databases.
 message SessionRevokedEvent {
+  // RevokedBy charts the systemic actor category that initiated the security credential teardown.
   enum RevokedBy {
     // Unassigned zero code identifier tracking value.
     REVOKED_BY_UNSPECIFIED = 0;
@@ -211,6 +215,7 @@ message RoleChangedEvent {
 
 // AccountLockedEvent notes defensive access restrictions applied over endangered user structures.
 message AccountLockedEvent {
+  // LockReason outlines the explicit algorithmic trigger isolating the asset from connection entry routes.
   enum LockReason {
     // Unassigned fallback security tracking code.
     LOCK_REASON_UNSPECIFIED = 0;

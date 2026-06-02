@@ -92,6 +92,7 @@ message RegisterResponse {
 
 // CheckAvailabilityRequest isolates specific communication variables to test structural index availability.
 message CheckAvailabilityRequest {
+  // identifier wraps the physical or virtual communication routes checked for registration redundancy.
   oneof identifier {
     // Communication handle targeting unique index scanning parameters on email columns.
     string email = 1 [(buf.validate.field).string.max_len = 254];

@@ -12,7 +12,7 @@ import "google/protobuf/timestamp.proto";
 // RolesService exposes administrative capability allocation tracks and regional geometric scope restrictions.
 service RolesService {
   // Extracts current privilege assignments and compiled performance capabilities matching a target identity.
-  rpc GetUserRoles(GetUserRolesRequest) returns (UserRolesResponse);
+  rpc GetUserRoles(GetUserRolesRequest) returns (GetUserRolesResponse);
   // Securely appends clearance structures to target profiles, executing under elevated token assertions.
   rpc AssignRole(AssignRoleRequest) returns (AssignRoleResponse);
   // Invalidates active clearance structures, removing tracking parameters from access matrices.
@@ -61,8 +61,8 @@ message RoleAssignment {
   };
 }
 
-// UserRolesResponse presents a unified security descriptor unpacking active privileges and operational boundaries.
-message UserRolesResponse {
+// GetUserRolesResponse presents a unified security descriptor unpacking active privileges and operational boundaries.
+message GetUserRolesResponse {
   // Target identity resource index tracking parent identity keys.
   uint64 user_id = 1;
 
