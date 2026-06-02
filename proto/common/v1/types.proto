@@ -46,10 +46,46 @@ enum VoteDirection {
 }
 
 message ClientMetadata {
-  optional Platform platform = 1;
-  optional string app_version = 2 [(buf.validate.field).string.max_len = 32];
-  optional string os_version = 3 [(buf.validate.field).string.max_len = 32];
-  optional string device_model = 4 [(buf.validate.field).string.max_len = 64];
-  optional string screen_size = 5 [(buf.validate.field).string.max_len = 32];
-  optional string timezone = 6 [(buf.validate.field).string.max_len = 64];
+  Platform platform = 1 [(buf.validate.field).enum.defined_only = true];
+  string app_version = 2 [(buf.validate.field).string = {
+    max_len: 32
+    pattern: "^\\d+\\.\\d+\\.\\d+.*$"
+  }];
+  string os_version = 3 [(buf.validate.field).string.max_len = 32];
+  string device_model = 4 [(buf.validate.field).string.max_len = 64];
+  string screen_size = 5 [(buf.validate.field).string = {
+    max_len: 16
+    pattern: "^\\d+x\\d+$"
+  }];
+  string timezone = 6 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 64
+  }];
+  Language language = 7 [(buf.validate.field).enum.defined_only = true];
+  uint32 app_build_number = 8;
+}
+
+message DominicanPhone {
+  string national = 1 [(buf.validate.field).string = {
+    pattern: "^(809|829|849)[0-9]{7}$"
+    len: 10
+  }];
+  string e164 = 2 [(buf.validate.field).string = {
+    pattern: "^\\+1(809|829|849)[0-9]{7}$"
+    len: 12
+  }];
+
+  option (buf.validate.message).cel = {
+    id: "phone.at_least_one_format"
+    message: "at least one of national or e164 must be set"
+    expression: "size(this.national) > 0 || size(this.e164) > 0"
+  };
+}
+
+message IdempotencyKey {
+  string value = 1 [(buf.validate.field).string = {
+    min_len: 16
+    max_len: 64
+    pattern: "^[a-zA-Z0-9_\\-]+$"
+  }];
 }

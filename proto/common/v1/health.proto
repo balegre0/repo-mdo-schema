@@ -2,19 +2,57 @@ syntax = "proto3";
 package common.v1;
 
 import "buf/validate/validate.proto";
+import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 
+enum HealthStatus {
+  HEALTH_STATUS_UNSPECIFIED = 0;
+  HEALTH_STATUS_HEALTHY = 1;
+  HEALTH_STATUS_DEGRADED = 2;
+  HEALTH_STATUS_UNHEALTHY = 3;
+  HEALTH_STATUS_MAINTENANCE = 4;
+}
+
+message SubsystemHealth {
+  string name = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 64
+  }];
+  HealthStatus status = 2 [(buf.validate.field).enum.defined_only = true];
+  string message = 3 [(buf.validate.field).string.max_len = 256];
+  uint32 latency_p99_ms = 4;
+  uint64 error_rate_ppm = 5;
+}
+
+message BuildInfo {
+  string version = 1 [(buf.validate.field).string = {
+    max_len: 32
+    pattern: "^\\d+\\.\\d+\\.\\d+.*$"
+  }];
+  string git_sha = 2 [(buf.validate.field).string = {
+    min_len: 7
+    max_len: 40
+  }];
+  google.protobuf.Timestamp built_at = 3;
+  string build_env = 4 [(buf.validate.field).string.max_len = 32];
+}
+
 message HealthReport {
-  enum Status {
-    STATUS_UNSPECIFIED = 0;
-    STATUS_HEALTHY = 1;
-    STATUS_DEGRADED = 2;
-    STATUS_UNHEALTHY = 3;
-    STATUS_MAINTENANCE = 4;
-  }
-  optional Status status = 1;
-  optional uint64 uptime_seconds = 2;
-  optional string version = 3 [(buf.validate.field).string.max_len = 32];
-  optional bytes server_signature = 4 [(buf.validate.field).bytes.max_len = 256];
-  optional google.protobuf.Timestamp timestamp = 5;
+  HealthStatus status = 1 [(buf.validate.field).enum.defined_only = true];
+  uint64 uptime_seconds = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  BuildInfo build = 4;
+  bytes server_signature = 5 [(buf.validate.field).bytes = {
+    min_len: 64
+    max_len: 72
+  }];
+
+  repeated SubsystemHealth subsystems = 6 [(buf.validate.field).repeated.max_items = 32];
+  google.protobuf.Duration request_timeout = 7;
+
+  option (buf.validate.message).cel = {
+    id: "health.healthy_means_no_unhealthy_subsystems"
+    message: "if status is HEALTHY, no subsystem can be UNHEALTHY"
+    expression: "this.status != 1 || this.subsystems.all(s, s.status != 3)"
+  };
 }

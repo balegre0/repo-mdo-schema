@@ -4,16 +4,37 @@ package common.v1;
 import "buf/validate/validate.proto";
 
 message CursorPagination {
-  optional uint32 limit = 1 [(buf.validate.field).uint32 = {
+  uint32 limit = 1 [(buf.validate.field).uint32 = {
     gte: 1
     lte: 100
   }];
-  optional string cursor = 2 [(buf.validate.field).string.max_len = 1024];
-  optional string sort_field = 3 [(buf.validate.field).string.max_len = 64];
-  optional bool sort_desc = 4;
+
+  string cursor = 2 [(buf.validate.field).string.max_len = 1024];
+  string sort_field = 3 [(buf.validate.field).string = {
+    max_len: 64
+    pattern: "^[a-zA-Z_][a-zA-Z0-9_\\.]*$"
+  }];
+  bool sort_desc = 4;
 }
 
-message PaginationResponse {
-  optional string next_cursor = 1 [(buf.validate.field).string.max_len = 1024];
-  optional uint64 total_estimate = 2;
+message CursorPaginationResponse {
+  string next_cursor = 1 [(buf.validate.field).string.max_len = 1024];
+  bool has_more = 2;
+  uint64 total_estimate = 3;
+}
+
+message PageBasedPagination {
+  uint32 page = 1 [(buf.validate.field).uint32.gte = 1];
+  uint32 page_size = 2 [(buf.validate.field).uint32 = {
+    gte: 1
+    lte: 100
+  }];
+}
+
+message PageBasedPaginationResponse {
+  uint32 current_page = 1;
+  uint32 total_pages = 2;
+  uint64 total_items = 3;
+  bool has_next = 4;
+  bool has_prev = 5;
 }

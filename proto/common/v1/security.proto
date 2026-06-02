@@ -13,41 +13,71 @@ enum KdfAlgorithm {
 }
 
 message UserEncryptedPayload {
-  optional bytes ephemeral_public_key = 1 [(buf.validate.field).bytes.max_len = 32];
-  optional bytes ciphertext = 2 [(buf.validate.field).bytes.max_len = 65536];
-  optional Hash key_commitment = 3;
-  optional uint32 version = 4 [(buf.validate.field).uint32.const = 1];
-  optional KdfAlgorithm kdf_algorithm = 5;
+  uint32 version = 1 [(buf.validate.field).uint32 = {
+    gte: 1
+    lte: 2
+  }];
+  KdfAlgorithm kdf_algorithm = 2 [(buf.validate.field).enum.defined_only = true];
+  bytes ephemeral_public_key = 3 [(buf.validate.field).bytes.const = "32"];
+  bytes ciphertext = 4 [(buf.validate.field).bytes.max_len = 65536];
+  Hash key_commitment = 5;
 }
 
 message HighSecurityToken {
-  optional string token = 1 [(buf.validate.field).string.max_len = 128];
-  optional google.protobuf.Timestamp expires_at = 2;
-  optional string purpose = 3 [(buf.validate.field).string.max_len = 64];
-  optional Signature signature = 4;
+  google.protobuf.Timestamp expires_at = 1;
+  string token = 2 [(buf.validate.field).string = {
+    min_len: 32
+    max_len: 128
+  }];
+  string purpose = 3 [(buf.validate.field).string.max_len = 64];
+  Signature signature = 4;
 }
 
 message MerkleEvent {
-  optional Hash prev_hash = 1;
-  optional Signature signature = 2;
-  optional google.protobuf.Timestamp timestamp = 3;
-  optional Hash data_hash = 4;
+  uint64 event_id = 1;
+  google.protobuf.Timestamp timestamp = 2;
+  Hash prev_hash = 3;
+  Hash data_hash = 4;
+  Signature signature = 5;
+
+  option (buf.validate.message).cel = {
+    id: "merkle_event.event_id_nonzero"
+    message: "event_id must be > 0 (server-assigned)"
+    expression: "this.event_id > 0u"
+  };
 }
 
 message ProofOfWork {
-  optional bytes nonce = 1 [(buf.validate.field).bytes.max_len = 64];
-  optional bytes solution = 2 [(buf.validate.field).bytes.max_len = 64];
-  optional uint32 difficulty = 3;
+  uint32 difficulty = 1 [(buf.validate.field).uint32 = {
+    gte: 1
+    lte: 32
+  }];
+  bytes challenge = 2 [(buf.validate.field).bytes = {
+    min_len: 32
+    max_len: 64
+  }];
+  bytes nonce = 3 [(buf.validate.field).bytes.max_len = 64];
+  bytes solution = 4 [(buf.validate.field).bytes.max_len = 64];
+
+  option (buf.validate.message).cel = {
+    id: "pow.solution_requires_challenge"
+    message: "solution requires a non-empty challenge"
+    expression: "!has(this.solution) || size(this.solution) == 0 || size(this.challenge) >= 32"
+  };
 }
 
 message ZKProof {
-  optional bytes proof_data = 1;
-  repeated bytes public_inputs = 2 [(buf.validate.field).repeated.max_items = 10];
   enum Type {
     TYPE_UNSPECIFIED = 0;
     TYPE_GROTH16 = 1;
     TYPE_PLONK = 2;
     TYPE_BULLETPROOFS = 3;
   }
-  optional Type proof_type = 3;
+
+  Type proof_type = 1 [(buf.validate.field).enum.defined_only = true];
+  bytes proof_data = 2 [(buf.validate.field).bytes = {
+    min_len: 64
+    max_len: 65536
+  }];
+  repeated bytes public_inputs = 3 [(buf.validate.field).repeated.max_items = 32];
 }

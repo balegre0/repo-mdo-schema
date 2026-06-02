@@ -11,9 +11,11 @@ message Hash {
     ALGORITHM_SHA512 = 2;
     ALGORITHM_BLAKE3 = 3;
   }
-  optional Algorithm algorithm = 1;
-  optional bytes value = 2 [(buf.validate.field).bytes = {
-    min_len: 32
+
+  Algorithm algorithm = 1 [(buf.validate.field).enum.defined_only = true];
+
+  bytes value = 2 [(buf.validate.field).bytes = {
+    min_len: 16
     max_len: 64
   }];
 }
@@ -24,26 +26,70 @@ message Signature {
     ALGORITHM_ED25519 = 1;
     ALGORITHM_ECDSA_P256 = 2;
   }
-  optional Algorithm algorithm = 1;
-  optional string id = 2 [(buf.validate.field).string.max_len = 64];
-  optional bytes key_data = 3 [(buf.validate.field).bytes.max_len = 256];
+
+  Algorithm algorithm = 1 [(buf.validate.field).enum.defined_only = true];
+
+  string public_key_id = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 64
+  }];
+
+  bytes value = 3 [(buf.validate.field).bytes = {
+    min_len: 64
+    max_len: 72
+  }];
+}
+
+message PublicKey {
+  enum Algorithm {
+    ALGORITHM_UNSPECIFIED = 0;
+    ALGORITHM_ED25519 = 1;
+    ALGORITHM_ECDSA_P256 = 2;
+    ALGORITHM_X25519 = 3;
+  }
+
+  Algorithm algorithm = 1 [(buf.validate.field).enum.defined_only = true];
+
+  string id = 2 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 64
+  }];
+
+  bytes key_data = 3 [(buf.validate.field).bytes = {
+    min_len: 32
+    max_len: 65
+  }];
+
+  google.protobuf.Timestamp expires_at = 4;
 }
 
 message MerkleRoot {
-  optional Hash hash = 1;
-  optional Hash previous_root = 2;
-  optional google.protobuf.Timestamp timestamp = 3;
-  optional uint64 tree_size = 4;
-}
-
-enum HashAlgorithm {
-  HASH_ALGORITHM_UNSPECIFIED = 0;
-  HASH_ALGORITHM_SHA256 = 1;
-  HASH_ALGORITHM_SHA512 = 2;
-  HASH_ALGORITHM_BLAKE3 = 3;
+  uint64 tree_size = 1;
+  google.protobuf.Timestamp timestamp = 2;
+  Hash hash = 3;
+  Hash previous_root = 4;
 }
 
 message Hmac {
-  optional HashAlgorithm algorithm = 1;
-  optional bytes value = 2 [(buf.validate.field).bytes.max_len = 64];
+  Hash.Algorithm algorithm = 1 [(buf.validate.field).enum.defined_only = true];
+  bytes value = 2 [(buf.validate.field).bytes = {
+    min_len: 32
+    max_len: 64
+  }];
+}
+
+message EncryptedData {
+  uint32 key_version = 1;
+  uint32 version = 2 [(buf.validate.field).uint32 = {
+    gte: 1
+    lte: 2
+  }];
+  bytes ciphertext = 3 [(buf.validate.field).bytes.max_len = 65536];
+  string key_id = 4 [(buf.validate.field).string.max_len = 64];
+
+  bytes nonce = 5 [(buf.validate.field).bytes = {
+    min_len: 12
+    max_len: 24
+  }];
+  google.protobuf.Timestamp rotation_timestamp = 6;
 }
