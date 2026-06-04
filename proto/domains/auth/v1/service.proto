@@ -6,101 +6,107 @@ import "buf/validate/validate.proto";
 import "common/v1/base.proto";
 import "common/v1/crypto.proto";
 import "common/v1/security.proto";
+import "common/v1/types.proto";
 import "domains/auth/v1/types.proto";
 import "google/protobuf/timestamp.proto";
 
-// AuthService handles target profile metadata extractions, security updates, and account termination sequences.
+// ...
 service AuthService {
-  // Returns account telemetry and personal metadata matching the authenticated caller context.
+  // ...
   rpc GetProfile(GetProfileRequest) returns (GetProfileResponse);
-  // Updates legal credentials blocks inside storage systems following primary factor matches.
+  // ...
   rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse);
-  // Triggers password reset tokens routed over active email or telephony transit networks.
+  // ...
   rpc RequestPasswordReset(RequestPasswordResetRequest) returns (RequestPasswordResetResponse);
-  // Consolidates structural verification tokens to rewrite account credentials blocks.
+  // ...
   rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse);
-  // Generates cryptographic key derivation seeds required to register fresh multi-factor configurations.
+  // ...
   rpc InitMfaSetup(InitMfaSetupRequest) returns (InitMfaSetupResponse);
-  // Asserts token codes against initialization seeds to lock multi-factor parameters.
+  // ...
   rpc ConfirmMfaSetup(ConfirmMfaSetupRequest) returns (ConfirmMfaSetupResponse);
-  // Drops multi-factor tracking configuration states operating under elevated verification tokens.
+  // ...
   rpc DisableMfa(DisableMfaRequest) returns (DisableMfaResponse);
-  // Purges profile tracking rows, executing under strict multi-factor validations and data retention rules.
+  // ...
   rpc DeleteAccount(DeleteAccountRequest) returns (DeleteAccountResponse);
 }
 
-// UserProfile consolidates systemic status metadata, identity parameters, and operational trust scores.
+// ...
 message UserProfile {
-  // Monotonically tracked database identity code indexing the target profile configuration.
+  // ...
   uint64 user_id = 1;
 
-  // Public messaging nickname or display string selected by the profile identity owner.
+  // ...
   string display_name = 2 [(buf.validate.field).string.max_len = 100];
 
-  // Communications handle tracking parameters mapping verified database records.
+  // ...
   string email = 3 [(buf.validate.field).string.max_len = 254];
 
-  // Dominican Republic regional telephony routing string verified on active communication networks.
-  string phone = 4 [(buf.validate.field).string.max_len = 10];
+  // ...
+  common.v1.DominicanPhone phone = 4;
 
-  // Identity validation classification tier tracking current identity trust parameters.
+  // ...
   common.v1.VerifiedLevel verified_level = 5 [(buf.validate.field).enum.defined_only = true];
 
-  // Operational phase status variable controlling application routing gate checks.
+  // ...
   AccountStatus status = 6 [(buf.validate.field).enum.defined_only = true];
 
-  // Continuous real-time trust calculation scoring asset integrity parameters from 0.0 (Zero Trust) to 1.0 (Flawless Profile).
+  // ...
   float trust_score = 7 [(buf.validate.field).float = {
     gte: 0.0
     lte: 1.0
   }];
 
-  // Security parameter flag logging if secondary factor algorithms check transaction requests.
+  // ...
   bool mfa_enabled = 8;
 
-  // Array gathering active multi-factor verification techniques initialized on the profile.
-  repeated MfaMethod mfa_methods = 9 [(buf.validate.field).repeated.max_items = 4];
+  // ...
+  repeated MfaMethod mfa_methods = 9 [(buf.validate.field).repeated = {
+    max_items: 4
+    items: {
+      enum: {defined_only: true}
+    }
+  }];
 
-  // Definitive machine timestamp tracking when this account framework row initialized.
+  // ...
   google.protobuf.Timestamp created_at = 10;
 
-  // Retrospective platform clock log tracking the last successful session handshake pass.
+  // ...
   google.protobuf.Timestamp last_login_at = 11;
 
-  // Array detailing active roles assigned to the current identity structure.
+  // ...
   repeated Role roles = 12 [(buf.validate.field).repeated.max_items = 10];
 }
 
-// GetProfileResponse maps the contextual asset parameters wrapped inside identity data streams.
+// ...
 message GetProfileResponse {
-  // The complete data definition structure tracking profile attributes.
+  // ...
   UserProfile profile = 1;
 }
 
-// ChangePasswordRequest packages client cryptographic credential blocks to execute rotational updates.
+// ...
 message ChangePasswordRequest {
-  // Current active password hash bitstream utilized to verify ownership parameters before rewrite operations execution.
+  // ...
   bytes current_password_hash = 1 [(buf.validate.field).bytes = {
     min_len: 32
     max_len: 64
   }];
 
-  // Fresh destination password hash bitstream generated to replace legacy credentials indices.
+  // ...
   bytes new_password_hash = 2 [(buf.validate.field).bytes = {
     min_len: 32
     max_len: 64
   }];
 
-  // Cascade revocation switch. True directs session databases to purge secondary token records immediately.
+  // ...
   bool revoke_other_sessions = 3;
 
-  // Transaction signature string mapping to prevent duplicate changes inside execution engines.
+  // ...
   string idempotency_key = 4 [(buf.validate.field).string = {
     min_len: 16
     max_len: 64
   }];
 
-  // CEL verification rule ensuring newly supplied password structures do not replicate existing ones.
+  // ...
   option (buf.validate.message).cel = {
     id: "password.not_same"
     message: "new password must be different from current password"
@@ -108,200 +114,200 @@ message ChangePasswordRequest {
   };
 }
 
-// ChangePasswordResponse returns metrics summarizing the structural credentials rewrite pass.
+// ...
 message ChangePasswordResponse {
-  // Server synchronized snapshot marking when the fresh credentials block locked into persistent memory.
+  // ...
   google.protobuf.Timestamp changed_at = 1;
 
-  // Quantitative count logging total secondary device sessions wiped following structural security changes.
+  // ...
   uint32 sessions_revoked = 2;
 }
 
-// RequestPasswordResetRequest establishes targets and tokens required to dispatch out-of-band recovery links.
+// ...
 message RequestPasswordResetRequest {
-  // identifier specifies the dynamic transmission channel scanned to route recovery tracking markers.
+  // ...
   oneof identifier {
-    // Unique indexing target communication channel utilizing email structures.
+    // ...
     string email = 1 [(buf.validate.field).string.max_len = 254];
-    // Unique indexing target communication channel utilizing Dominican telephony structures.
+    // ...
     string phone = 2 [(buf.validate.field).string = {
       pattern: "^(809|829|849)[0-9]{7}$"
       max_len: 10
     }];
   }
 
-  // Unique idempotency string managing execution tracking vectors across network lines.
+  // ...
   string idempotency_key = 3 [(buf.validate.field).string = {
     min_len: 16
     max_len: 64
   }];
 }
 
-// RequestPasswordResetResponse updates callers regarding delivery pipeline performance metrics.
+// ...
 message RequestPasswordResetResponse {
-  // Boolean operational modifier. True confirms data packets entered messaging grid broker queues.
+  // ...
   bool sent = 1;
 
-  // Hard temporal timeline cutoff snapshot tracking when issued recovery links drop validation capacity.
+  // ...
   google.protobuf.Timestamp expires_at = 2;
 }
 
-// ResetPasswordRequest maps high-entropy tokens with new credentials blocks to override account properties.
+// ...
 message ResetPasswordRequest {
-  // High-entropy verification signature string fetched out-of-band to authorize password override pipelines.
+  // ...
   string reset_token = 1 [(buf.validate.field).string = {
     min_len: 32
     max_len: 256
   }];
 
-  // Newly formulated password hash bitstream generated to rewrite database credential rows.
+  // ...
   bytes new_password_hash = 2 [(buf.validate.field).bytes = {
     min_len: 32
     max_len: 64
   }];
 
-  // Transactional idempotency tracking token preventing concurrent record processing conflicts.
+  // ...
   string idempotency_key = 3 [(buf.validate.field).string = {
     min_len: 16
     max_len: 64
   }];
 }
 
-// ResetPasswordResponse records completion tracking indicators following system password resets.
+// ...
 message ResetPasswordResponse {
-  // Server synchronized clock checkpoint logging when fresh password values active across storage systems.
+  // ...
   google.protobuf.Timestamp reset_at = 1;
 
-  // Absolute volume tracking count detailing user sessions wiped following terminal credential changes.
+  // ...
   uint32 sessions_revoked = 2;
 }
 
-// InitMfaSetupRequest isolates requested multi-factor categories to drive setup operations loops.
+// ...
 message InitMfaSetupRequest {
-  // Target secondary security primitive selection model being initiated.
+  // ...
   MfaMethod method = 1 [(buf.validate.field).enum = {
     defined_only: true
     not_in: [0]
   }];
 }
 
-// InitMfaSetupResponse maps setup metadata structures and configurations matching targeted MFA methods.
+// ...
 message InitMfaSetupResponse {
-  // setup_data holds the explicit cryptographic payloads customized per selected verification technique.
+  // ...
   oneof setup_data {
-    // Structural parameters required to link standard TOTP applications running key derivation layers.
+    // ...
     TotpSetup totp = 1;
-    // Masked parameters detailing telephony out-of-band verification target strings.
+    // ...
     SmsSetup sms = 2;
-    // Masked parameters detailing electronic mail out-of-band verification target strings.
+    // ...
     EmailSetup email = 3;
   }
 
-  // Expiration deadline mapping when initial key setup allocations drop from memory maps.
+  // ...
   google.protobuf.Timestamp expires_at = 4;
 
-  // TotpSetup bundles high-entropy key configuration data and static recovery vectors.
+  // ...
   message TotpSetup {
-    // Authenticated uniform resource identifier tracking key parameters used to populate local authenticator profiles via QR.
+    // ...
     string secret_uri = 1;
 
-    // Base32 alphanumeric representation of the raw secret seed used during manual key typing setups.
+    // ...
     string secret_base32 = 2;
 
-    // Array collecting pre-computed high-entropy backup codes enabling emergency bypass transitions if master apps fail.
+    // ...
     repeated string backup_codes = 3 [(buf.validate.field).repeated = {
       min_items: 8
       max_items: 10
     }];
   }
 
-  // SmsSetup masks target telephony lines to protect data privacy.
+  // ...
   message SmsSetup {
-    // Obfuscated communication telephone string tracking parameters (e.g., "+1829*****34").
+    // ...
     string phone_masked = 1;
   }
 
-  // EmailSetup masks target mail destinations to protect data privacy.
+  // ...
   message EmailSetup {
-    // Obfuscated destination communication string tracking parameters (e.g., "b****n@itla.edu.do").
+    // ...
     string email_masked = 1;
   }
 }
 
-// ConfirmMfaSetupRequest houses validation token proofs required to lock initialized multi-factor configurations.
+// ...
 message ConfirmMfaSetupRequest {
-  // Active secondary authentication technique token configuration being verified.
+  // ...
   MfaMethod method = 1 [(buf.validate.field).enum = {
     defined_only: true
     not_in: [0]
   }];
 
-  // Dynamic alphanumeric sequence string captured from the newly configured factor device.
+  // ...
   string code = 2 [(buf.validate.field).string = {
     min_len: 6
     max_len: 8
   }];
 }
 
-// ConfirmMfaSetupResponse confirms execution status flags inside systemic profile configurations.
+// ...
 message ConfirmMfaSetupResponse {
-  // Boolean validation status flag. True signals that multi-factor rules are active on current user rows.
+  // ...
   bool enabled = 1;
 
-  // Precision machine timestamp tracking when secondary factor constraints updated target configurations.
+  // ...
   google.protobuf.Timestamp enabled_at = 2;
 }
 
-// DisableMfaRequest targets specific active verification factors for structural erasure from account frameworks.
+// ...
 message DisableMfaRequest {
-  // Target secondary validation factor profile targeted for removal.
+  // ...
   MfaMethod method = 1 [(buf.validate.field).enum = {
     defined_only: true
     not_in: [0]
   }];
 
-  // Alphanumeric validation token sequence string generated via active secondary devices to verify authorization.
+  // ...
   string confirmation_code = 2 [(buf.validate.field).string = {
     min_len: 6
     max_len: 8
   }];
 
-  // High-privilege cryptographic verification token mandatory to execute dangerous structural modifications.
+  // ...
   common.v1.HighSecurityToken high_security_token = 3;
 }
 
-// DisableMfaResponse confirms the precise temporal clearing point of security factor restrictions.
+// ...
 message DisableMfaResponse {
-  // Hardware synchronized system clock tracking when secondary factor rules dropped out of account setups.
+  // ...
   google.protobuf.Timestamp disabled_at = 1;
 }
 
-// DeleteAccountRequest handles credentials proofs and metadata context parameters needed to terminate profiles.
+// ...
 message DeleteAccountRequest {
-  // Validation credentials hash byte block confirming identity parameters before data destruction sweeps execution.
+  // ...
   bytes password_hash = 1 [(buf.validate.field).bytes = {
     min_len: 32
     max_len: 64
   }];
 
-  // Context message logging reason or feedback explaining profile exit transitions.
+  // ...
   string reason = 2 [(buf.validate.field).string.max_len = 512];
 
-  // Elevated security verification signature required to clear data storage spaces.
+  // ...
   common.v1.HighSecurityToken high_security_token = 3;
 }
 
-// DeleteAccountResponse fields map data protection variables and session tracking results following deletion.
+// ...
 message DeleteAccountResponse {
-  // System clock time recording when target profile configurations entered terminal logical deletion tracks.
+  // ...
   google.protobuf.Timestamp deleted_at = 1;
 
-  // Regulatory compliance lifespan tracker marking how long anonymized history data remains inside isolated pools before scrubbing.
+  // ...
   google.protobuf.Timestamp data_retained_until = 2;
 
-  // Total qualitative count logging concurrent user device sessions wiped completely from network databases.
+  // ...
   uint32 sessions_revoked = 3;
 }
 
-// GetProfileRequest handles baseline empty configuration maps targeting active caller contexts.
+// ...
 message GetProfileRequest {}

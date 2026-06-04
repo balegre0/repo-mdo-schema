@@ -1,0 +1,16 @@
+version: v2
+
+inputs:
+  - directory: proto
+
+plugins:
+  - remote: buf.build/community/neoeinstein-prost
+    out: gen/rust/src
+
+  - remote: buf.build/community/neoeinstein-prost-crate
+    out: gen/rust
+
+  - remote: buf.build/bufbuild/doc
+    out: docs/proto
+    opt:
+      - html,index.html

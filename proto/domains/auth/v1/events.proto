@@ -10,282 +10,282 @@ import "common/v1/types.proto";
 import "domains/auth/v1/types.proto";
 import "google/protobuf/timestamp.proto";
 
-// UserRegisteredEvent records initial profile initialization markers committed onto verifiable append-only data logs.
+// ...
 message UserRegisteredEvent {
-  // VerificationMethod defines the strategic onboarding protocol used to clear the user.
+  // ...
   enum VerificationMethod {
-    // Unassigned zero state placeholder mapping unlogged onboarding methods.
+    // ...
     VERIFICATION_METHOD_UNSPECIFIED = 0;
-    // Onboarding driven via rigorous remote government registry validation checks.
+    // ...
     VERIFICATION_METHOD_CEDULA = 1;
-    // Low trust onboarding tracking parameters driven via basic mail link loops.
+    // ...
     VERIFICATION_METHOD_EMAIL = 2;
   }
 
-  // System index identity code assigned across modern data storage frameworks.
+  // ...
   uint64 user_id = 1;
 
-  // Communications handle tracking parameters mapping structural identity records.
+  // ...
   string email = 2 [(buf.validate.field).string.max_len = 254];
 
-  // Local telephone connection handle notation tracing profile owners.
-  string phone = 3 [(buf.validate.field).string.max_len = 10];
+  // ...
+  common.v1.DominicanPhone phone = 3;
 
-  // Hardware platform clock time logging when records locked into persistence arrays.
+  // ...
   google.protobuf.Timestamp timestamp = 4;
 
-  // Persistent tracking identifier mapping client physical environment traits.
+  // ...
   string device_id = 5 [(buf.validate.field).string.max_len = 128];
 
-  // Ingress interface IP string mapping client connectivity coordinates (accepts v4/v6 structures).
+  // ...
   string ip_address = 6 [(buf.validate.field).string.max_len = 45];
 
-  // Underlying client runtime runtime architecture context mapping communication origins.
+  // ...
   common.v1.Platform platform = 7 [(buf.validate.field).enum.defined_only = true];
 
-  // Specific onboarding check strategy applied to unlock the baseline profile framework.
+  // ...
   VerificationMethod verification_method = 8 [(buf.validate.field).enum.defined_only = true];
 
-  // Merkle tree linking proof element binding this message into tamper proof security chains.
+  // ...
   common.v1.MerkleEvent merkle = 9;
 }
 
-// UserVerifiedEvent logs shifts updating systemic trust levels inside identity tracking architectures.
+// ...
 message UserVerifiedEvent {
-  // VerificationMethod models the cryptographic check routines executed to expand user trust limits.
+  // ...
   enum VerificationMethod {
-    // Zero state unlogged verification code.
+    // ...
     VERIFICATION_METHOD_UNSPECIFIED = 0;
-    // Trust expansion cleared via out-of-band National identity token validation loops.
+    // ...
     VERIFICATION_METHOD_CEDULA_OTP = 1;
-    // Trust expansion cleared via local hardware biometric proof evaluation passes.
+    // ...
     VERIFICATION_METHOD_BIOMETRIC = 2;
-    // Exceptional clearance tier change executed directly via administrative infrastructure overrides.
+    // ...
     VERIFICATION_METHOD_ADMIN_OVERRIDE = 3;
   }
 
-  // Target database primary key code mapping the affected user asset profile.
+  // ...
   uint64 user_id = 1;
 
-  // Baseline initial validation trust status level recorded prior to current event processing.
+  // ...
   common.v1.VerifiedLevel previous_level = 2 [(buf.validate.field).enum.defined_only = true];
 
-  // Newly applied structural identity tracking tier committed onto persistent profile states.
+  // ...
   common.v1.VerifiedLevel new_level = 3 [(buf.validate.field).enum.defined_only = true];
 
-  // The specific workflow tracking code indexing the original out-of-band identification sequence.
+  // ...
   uint64 verification_id = 4;
 
-  // Clock time indicating exactly when validation layers updated the security parameters.
+  // ...
   google.protobuf.Timestamp timestamp = 5;
 
-  // Specific verification mechanism schema applied to transition security values.
+  // ...
   VerificationMethod method = 6 [(buf.validate.field).enum.defined_only = true];
 
-  // Tamper evident tree structure node embedding this log entry into the blockchain architecture ledger.
+  // ...
   common.v1.MerkleEvent merkle = 7;
 }
 
-// LoginEvent maps metrics logging access control handshakes passing API entry barriers.
+// ...
 message LoginEvent {
-  // FailureReason catalogs authorization block criteria or credential validation breakdowns.
+  // ...
   enum FailureReason {
-    // Unassigned state logging zero errors.
+    // ...
     FAILURE_REASON_UNSPECIFIED = 0;
-    // Password tracking bytes mismatch target value metrics inside cryptographic stores.
+    // ...
     FAILURE_REASON_INVALID_PASSWORD = 1;
-    // Access denied because automated brute force protection engines locked current profile structures.
+    // ...
     FAILURE_REASON_ACCOUNT_LOCKED = 2;
-    // Primary factors match cleared, but verification engine requires secondary token processing steps.
+    // ...
     FAILURE_REASON_MFA_REQUIRED = 3;
-    // Security token validation failed target parameter checking rules inside MFA modules.
+    // ...
     FAILURE_REASON_INVALID_MFA = 4;
-    // Connection tracking aborted because endpoint hit transaction volume limit constraints.
+    // ...
     FAILURE_REASON_RATE_LIMITED = 5;
-    // Target identifying access string cannot be mapped onto active profile tables.
+    // ...
     FAILURE_REASON_ACCOUNT_NOT_FOUND = 6;
-    // Administrative hold applied. Profile isolated due to system violations or fraud risks.
+    // ...
     FAILURE_REASON_ACCOUNT_SUSPENDED = 7;
   }
 
-  // Database tracking identifier tracing the user profile entity attempting connection handshakes.
+  // ...
   uint64 user_id = 1;
 
-  // Database tracking identifier indexing the persistent device session generated upon success.
+  // ...
   uint64 session_id = 2;
 
-  // System execution time tracing entry inside security routing filters.
+  // ...
   google.protobuf.Timestamp timestamp = 3;
 
-  // Operational validation status check flag tracking if the connection handshake succeeded completely.
+  // ...
   bool success = 4;
 
-  // Diagnostic error category logging precise reasons behind access denial exceptions.
+  // ...
   FailureReason failure_reason = 5 [(buf.validate.field).enum.defined_only = true];
 
-  // Network connection string mapping source interface IP routing tracks.
+  // ...
   string ip_address = 6 [(buf.validate.field).string.max_len = 45];
 
-  // Physical environment hardware mapping index code tracking platform fingerprints.
+  // ...
   string device_id = 7 [(buf.validate.field).string.max_len = 128];
 
-  // Software framework environment taxonomy classification mapping communication source styles.
+  // ...
   common.v1.Platform platform = 8 [(buf.validate.field).enum.defined_only = true];
 
-  // Analytics threat parameter flag. True flags an unrecorded hardware environment configuration tracking history.
+  // ...
   bool is_new_device = 9;
 
-  // Verifiable cryptographic event ledger block guaranteeing data history immutability.
+  // ...
   common.v1.MerkleEvent merkle = 10;
 }
 
-// SessionRevokedEvent tracks device unlinking operations executed inside connection databases.
+// ...
 message SessionRevokedEvent {
-  // RevokedBy charts the systemic actor category that initiated the security credential teardown.
+  // ...
   enum RevokedBy {
-    // Unassigned zero code identifier tracking value.
+    // ...
     REVOKED_BY_UNSPECIFIED = 0;
-    // Authorization canceled directly via target profile owner action patterns.
+    // ...
     REVOKED_BY_USER = 1;
-    // Enforcement action executed by corporate platform operations managers.
+    // ...
     REVOKED_BY_ADMIN = 2;
-    // Automated background engine swipe pass executing token expiration teardowns.
+    // ...
     REVOKED_BY_SYSTEM = 3;
-    // Context protection trigger dropping sessions due to sudden routing threat changes.
+    // ...
     REVOKED_BY_SECURITY = 4;
   }
 
-  // Primary profile index tracing ownership parameters over the invalidated session row.
+  // ...
   uint64 user_id = 1;
 
-  // Primary index tracking the persistent database session entry dropped by the workflow pass.
+  // ...
   uint64 session_id = 2;
 
-  // Environment fingerprint string tracking the device dropped from authorization tracks.
+  // ...
   string device_id = 3 [(buf.validate.field).string.max_len = 128];
 
-  // System time marking when the authorization credentials tracking state dropped validity rules.
+  // ...
   google.protobuf.Timestamp revoked_at = 4;
 
-  // Lifecycle actor categorization tracking who invoked the termination process.
+  // ...
   RevokedBy revoked_by_type = 5 [(buf.validate.field).enum.defined_only = true];
 
-  // Associated identity pointer mapping the precise administrative profile that triggered changes.
+  // ...
   uint64 revoked_by_user_id = 6;
 
-  // Explanatory diagnostic text context detailing the reason behind target track cancellations.
+  // ...
   string reason = 7 [(buf.validate.field).string.max_len = 512];
 
-  // Cryptographic logging wrapper anchoring current events onto integrity validation trails.
+  // ...
   common.v1.MerkleEvent merkle = 8;
 }
 
-// RoleChangedEvent frames security logging details tracking clearance tier changes across user setups.
+// ...
 message RoleChangedEvent {
-  // Target identity pointer code matching affected profile database rows.
+  // ...
   uint64 user_id = 1;
 
-  // Baseline legacy clearance tier assigned before current structural modifications.
+  // ...
   Role old_role = 2 [(buf.validate.field).enum.defined_only = true];
 
-  // Fresh clearance tier validation token committed inside authorization matrices.
+  // ...
   Role new_role = 3 [(buf.validate.field).enum.defined_only = true];
 
-  // Administrative primary index mapping the specific manager profile that authorized changes.
+  // ...
   uint64 changed_by = 4;
 
-  // System clock log timestamp capturing when changes hit data storage arrays.
+  // ...
   google.protobuf.Timestamp timestamp = 5;
 
-  // Structural audit text documenting administrative reasoning behind role alterations.
+  // ...
   string reason = 6 [(buf.validate.field).string.max_len = 512];
 
-  // Lifecycle trait tracking flag. True maps that access parameters drop via timeout algorithms.
+  // ...
   bool is_temporary = 7;
 
-  // Cutoff timeline coordinate snapshot tracing when newly granted access rules drop tracking.
+  // ...
   google.protobuf.Timestamp expires_at = 8;
 
-  // Geopolitical boundary list confining clearance targets to precise Dominican territory index codes (1-32).
+  // ...
   repeated uint32 province_scope = 9 [(buf.validate.field).repeated.max_items = 32];
 
-  // Verifiable logging chain metadata anchoring data blocks inside cryptography structures.
+  // ...
   common.v1.MerkleEvent merkle = 10;
 }
 
-// AccountLockedEvent notes defensive access restrictions applied over endangered user structures.
+// ...
 message AccountLockedEvent {
-  // LockReason outlines the explicit algorithmic trigger isolating the asset from connection entry routes.
+  // ...
   enum LockReason {
-    // Unassigned fallback security tracking code.
+    // ...
     LOCK_REASON_UNSPECIFIED = 0;
-    // Profile locked out due to consecutive credentials matching failures dropping past acceptable limits.
+    // ...
     LOCK_REASON_TOO_MANY_ATTEMPTS = 1;
-    // Protective lock triggered due to anomalous geometric velocity variations or session token tampering.
+    // ...
     LOCK_REASON_SUSPICIOUS_ACTIVITY = 2;
-    // Explicit manual intervention lock executed by platform support engineers.
+    // ...
     LOCK_REASON_ADMIN_ACTION = 3;
-    // Global intelligence trigger blocking profiles matching credentials leaked inside public data dumps.
+    // ...
     LOCK_REASON_BREACH_DETECTED = 4;
   }
 
-  // Primary database pointer index tracking the isolated user asset profile.
+  // ...
   uint64 user_id = 1;
 
-  // Precision server clock time noting when defensive isolation barriers activated.
+  // ...
   google.protobuf.Timestamp locked_at = 2;
 
-  // Temporal unlock deadline marking when automated filters allow routing access retry sequences.
+  // ...
   google.protobuf.Timestamp locked_until = 3;
 
-  // Defensive logic categorization logging why account processing was forced into isolation states.
+  // ...
   LockReason reason = 4 [(buf.validate.field).enum.defined_only = true];
 
-  // Quantitative iteration counter tracking invalid entry submissions registered before isolation blocks triggered.
+  // ...
   uint32 attempt_count = 5;
 
-  // Cryptographic blockchain tracking ledger block guaranteeing data history immutability.
+  // ...
   common.v1.MerkleEvent merkle = 6;
 }
 
-// MfaChangedEvent notes configuration changes tracking multi-factor authorization setup definitions.
+// ...
 message MfaChangedEvent {
-  // Primary index matching the target profile tracking state changes.
+  // ...
   uint64 user_id = 1;
 
-  // Activation state tracker modifier logging if multi-factor filters are active or disabled.
+  // ...
   bool enabled = 2;
 
-  // Specific secondary verification factor type target affected by structural configuration changes.
+  // ...
   MfaMethod method = 3 [(buf.validate.field).enum.defined_only = true];
 
-  // Precision machine timestamp tracking when state overrides hit database maps.
+  // ...
   google.protobuf.Timestamp timestamp = 4;
 
-  // Primary identifier tracing the engineering or user identity that signed the configuration update.
+  // ...
   uint64 changed_by = 5;
 
-  // Tamper evident tree log structural block verifying event historical footprint metrics.
+  // ...
   common.v1.MerkleEvent merkle = 6;
 }
 
-// PasswordChangedEvent models tracking details capturing cryptographic credentials modifications inside core systems.
+// ...
 message PasswordChangedEvent {
-  // Primary index locating the user profile receiving credentials alterations.
+  // ...
   uint64 user_id = 1;
 
-  // Hardware synchronized system time recording when security engines locked the fresh password rows.
+  // ...
   google.protobuf.Timestamp timestamp = 2;
 
-  // Network interface source IP tracking entry mapping the connection origin that executed rewriting steps.
+  // ...
   string ip_address = 3 [(buf.validate.field).string.max_len = 45];
 
-  // Workflow tracking classification toggle. True flags updates executing through password recovery loops.
+  // ...
   bool was_reset = 4;
 
-  // Security ripple switch. True indicates session storage structures executed cluster wide session revocations.
+  // ...
   bool all_sessions_revoked = 5;
 
-  // Cryptographic verifiable chain ledger event block tracking sequence footprints across distributed clusters.
+  // ...
   common.v1.MerkleEvent merkle = 6;
 }

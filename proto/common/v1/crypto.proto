@@ -5,141 +5,129 @@ package common.v1;
 import "buf/validate/validate.proto";
 import "google/protobuf/timestamp.proto";
 
-// Hash encapsulates raw computing digest streams alongside the deterministic mathematical function code used.
+// ...
 message Hash {
-  // Algorithm identifies supported secure cryptographic hashing primitives.
+  // ...
   enum Algorithm {
-    // Uninitialized token state. Missing algorithm validation profile identifier.
+    // ...
     ALGORITHM_UNSPECIFIED = 0;
-    // NIST FIPS 180-4 Secure Hashing standard exporting a static 256-bit binary layout digest.
+    // ...
     ALGORITHM_SHA256 = 1;
-    // NIST FIPS 180-4 Secure Hashing standard exporting a static 512-bit binary layout digest.
+    // ...
     ALGORITHM_SHA512 = 2;
-    // Tree-structured cryptographic hash function optimizing parallel SIMD pipelining (RFC 9393).
+    // ...
     ALGORITHM_BLAKE3 = 3;
   }
 
-  // The math transformation model identity applied to compute this message digest payload.
+  // ...
   Algorithm algorithm = 1 [(buf.validate.field).enum.defined_only = true];
 
-  // Raw unencoded cryptographic signature bitstream payload. Structurally limited matching standard hashing outputs.
+  // ...
   bytes value = 2 [(buf.validate.field).bytes = {
     min_len: 16
     max_len: 64
   }];
 }
 
-// Signature maps cryptographic validation proofs generated via asymmetric key cryptography configurations.
+// ...
 message Signature {
-  // Algorithm traces asymmetric signing primitive structures enforcing validation bounds and origin non-repudiation.
+  // ...
   enum Algorithm {
-    // Uninitialized token state. Missing algorithm identity parameter validation mapping.
+    // ...
     ALGORITHM_UNSPECIFIED = 0;
-    // Edwards-curve Digital Signature Algorithm running over Curve25519 parameters (RFC 8032).
+    // ...
     ALGORITHM_ED25519 = 1;
-    // Elliptic Curve Digital Signature Algorithm tracking over NIST P-256 coordinates (FIPS 186-4).
+    // ...
     ALGORITHM_ECDSA_P256 = 2;
   }
 
-  // The active cryptographic curve algorithm configuration applied to evaluate this mathematical verification block.
+  // ...
   Algorithm algorithm = 1 [(buf.validate.field).enum.defined_only = true];
 
-  // Master lookup database identity token used to map and isolate the tracking public key matching this signature block.
+  // ...
   string public_key_id = 2 [(buf.validate.field).string = {
     min_len: 1
     max_len: 64
   }];
 
-  // Raw unencoded asymmetric signature byte stream proof payload tracking standard serialization bounds.
+  // ...
   bytes value = 3 [(buf.validate.field).bytes = {
     min_len: 64
     max_len: 72
   }];
 }
 
-// PublicKey exposes structural public parameters utilized across asymmetric cryptography decryption or signing validations.
+// ...
 message PublicKey {
-  // Algorithm maps the functional operational curve math profile assigned to evaluate this public key data.
+  // ...
   enum Algorithm {
-    // Uninitialized zero state indicator mapping an invalid public key profile.
+    // ...
     ALGORITHM_UNSPECIFIED = 0;
-    // Verification parameters for Ed25519 digital signature systems.
+    // ...
     ALGORITHM_ED25519 = 1;
-    // Verification parameters for NIST P-256 ECDSA structural signature validation operations.
+    // ...
     ALGORITHM_ECDSA_P256 = 2;
-    // Asymmetric parameters optimized for X25519 Diffie-Hellman cryptographic key exchange handshakes (RFC 7748).
+    // ...
     ALGORITHM_X25519 = 3;
   }
 
-  // Cryptographic family tracking structure detailing the operational configuration of the key block parameters.
+  // ...
   Algorithm algorithm = 1 [(buf.validate.field).enum.defined_only = true];
 
-  // Unique database or key-ring tracking index hash assigned to trace this public key payload.
+  // ...
   string id = 2 [(buf.validate.field).string = {
     min_len: 1
     max_len: 64
   }];
 
-  // Raw bitstream representation of the public parameter matrix serialized under standardized structures (e.g., SEC1, DER).
+  // ...
   bytes key_data = 3 [(buf.validate.field).bytes = {
     min_len: 32
     max_len: 65
   }];
 
-  // Strict lifecycle expiration timestamp boundary marking when validation layers must drop this public key context.
+  // ...
   google.protobuf.Timestamp expires_at = 4;
 }
 
-// MerkleRoot handles integrity state tracking proofs matching an append-only verifiable transaction ledger.
+// ...
 message MerkleRoot {
-  // Cumulative leaf nodes quantity count committed inside the underlying cryptographic tree ledger matrix.
-  uint64 tree_size = 1;
+  // ...
+  uint64 tree_size = 1 [(buf.validate.field).uint64.gt = 0];
 
-  // Time snapshot sequence pinpointing the exact machine runtime boundary frame when this root state was frozen.
+  // ...
   google.protobuf.Timestamp timestamp = 2;
 
-  // Master verification hash payload representing the unified cryptographic root boundary layer of the tree structure.
-  Hash hash = 3;
+  // ...
+  Hash hash = 3 [(buf.validate.field).required = true];
 
-  // Immediate historic ancestor reference hash linking tracing vectors back to the previous tree root sequence block.
+  // ...
   Hash previous_root = 4;
 }
 
-// Hmac manages symmetric message validation tokens utilizing key-hashed message authentication procedures.
-message Hmac {
-  // Symmetric transformation primitive configuration utilized to pipeline the hashing pass.
-  Hash.Algorithm algorithm = 1 [(buf.validate.field).enum.defined_only = true];
-
-  // Raw unencoded message authentication code verification byte block. Conforms to standard validation widths.
-  bytes value = 2 [(buf.validate.field).bytes = {
-    min_len: 32
-    max_len: 64
-  }];
-}
-
-// EncryptedData maps a protected payload package holding symmetric authenticated cryptographic ciphertext.
+// ...
 message EncryptedData {
-  // Key Management Infrastructure version identifier used to trace historical rotation sweeps on the parent key.
+  // ...
   uint32 key_version = 1;
 
-  // Serialization format layout version tag tracking operational modifications inside decoding logic loops.
+  // ...
   uint32 version = 2 [(buf.validate.field).uint32 = {
     gte: 1
     lte: 2
   }];
 
-  // Raw ciphertext payload byte string protected from observation layer interactions. Bound to 64KB buffers.
+  // ...
   bytes ciphertext = 3 [(buf.validate.field).bytes.max_len = 65536];
 
-  // Remote security module index tracking identity path used to request decryption access permissions.
+  // ...
   string key_id = 4 [(buf.validate.field).string.max_len = 64];
 
-  // Cryptographic initialization vector or distinct unique non-repeating number tracking block mapping constraints.
+  // ...
   bytes nonce = 5 [(buf.validate.field).bytes = {
     min_len: 12
     max_len: 24
   }];
 
-  // Automated platform telemetry timestamp tracking exactly when the rotative key lifecycle engine processed this item.
+  // ...
   google.protobuf.Timestamp rotation_timestamp = 6;
 }

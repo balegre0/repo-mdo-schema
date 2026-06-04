@@ -9,40 +9,40 @@ import "common/v1/security.proto";
 import "domains/auth/v1/types.proto";
 import "google/protobuf/timestamp.proto";
 
-// RolesService exposes administrative capability allocation tracks and regional geometric scope restrictions.
+// ...
 service RolesService {
-  // Extracts current privilege assignments and compiled performance capabilities matching a target identity.
+  // ...
   rpc GetUserRoles(GetUserRolesRequest) returns (GetUserRolesResponse);
-  // Securely appends clearance structures to target profiles, executing under elevated token assertions.
+  // ...
   rpc AssignRole(AssignRoleRequest) returns (AssignRoleResponse);
-  // Invalidates active clearance structures, removing tracking parameters from access matrices.
+  // ...
   rpc RemoveRole(RemoveRoleRequest) returns (RemoveRoleResponse);
-  // Returns operational configurations detailing accessible privilege structures available to management tiers.
+  // ...
   rpc ListAssignableRoles(ListAssignableRolesRequest) returns (ListAssignableRolesResponse);
 }
 
-// RoleAssignment binds a systemic Clearance Level token to an identity profile with precise lifecycle and regional boundaries.
+// ...
 message RoleAssignment {
-  // Clear administrative tier assignment model being applied.
+  // ...
   Role role = 1 [(buf.validate.field).enum = {
     defined_only: true
     not_in: [0]
   }];
 
-  // Precision clock timestamp marking when privilege boundaries activated inside datastores.
+  // ...
   google.protobuf.Timestamp assigned_at = 2;
 
-  // Administrative primary index mapping the manager identity that authorized this clearance change.
+  // ...
   uint64 assigned_by = 3;
 
-  // Hard lifecycle deadline marking when access validation engines must drop current clearance tokens.
+  // ...
   google.protobuf.Timestamp expires_at = 4;
 
-  // Lifecycle trait modifier. True flags that access permissions drop via automated cron sweep passes.
+  // ...
   bool is_temporary = 5;
 
-  // Geopolitical tracking array restricting operational clearance to specific Dominican Republic provinces.
-  // Enforces data constraints matching Dominican political geography configurations (1 to 32 max index).
+  // ...
+  // ...
   repeated uint32 province_scope = 6 [(buf.validate.field).repeated = {
     max_items: 32
     items: {
@@ -53,50 +53,50 @@ message RoleAssignment {
     }
   }];
 
-  // CEL architectural assertion demanding explicit geographical profiling constraints for any role below root tiers.
+  // ...
   option (buf.validate.message).cel = {
     id: "role.province_scope_required_for_non_superadmin"
     message: "province_scope is required for roles below SUPER_ADMIN"
-    expression: "this.role == 5 || size(this.province_scope) > 0"
+    expression: "this.role == domains.auth.v1.Role.ROLE_SUPER_ADMIN || size(this.province_scope) > 0"
   };
 }
 
-// GetUserRolesResponse presents a unified security descriptor unpacking active privileges and operational boundaries.
+// ...
 message GetUserRolesResponse {
-  // Target identity resource index tracking parent identity keys.
+  // ...
   uint64 user_id = 1;
 
-  // Dataset collection tracking separate persistent or transient role parameters assigned to the profile.
+  // ...
   repeated RoleAssignment assignments = 2 [(buf.validate.field).repeated.max_items = 10];
 
-  // Flattend capability array representing compiled permissions evaluated in real-time by authorization filters.
+  // ...
   repeated Permission effective_permissions = 3 [(buf.validate.field).repeated.max_items = 50];
 
-  // The dominant role parameter used by quick routing mechanisms to compute interface capabilities.
+  // ...
   Role highest_role = 4;
 }
 
-// AssignRoleRequest packages target identity keys, privilege profiles, and security parameters to update authorizations.
+// ...
 message AssignRoleRequest {
-  // Primary index locating the target user profile targeted to receive the clearance elevation.
+  // ...
   uint64 target_user_id = 1 [(buf.validate.field).uint64.gt = 0];
 
-  // Target administrative clearance level assigned by the operation pass.
+  // ...
   Role role = 2 [(buf.validate.field).enum = {
     defined_only: true
     not_in: [0]
   }];
 
-  // Audit log context statement logging engineering or administrative reasoning behind privilege allocation.
+  // ...
   string reason = 3 [(buf.validate.field).string = {
     min_len: 10
     max_len: 512
   }];
 
-  // Target timeline cutoff snapshot tracing when privilege activation boundaries end.
+  // ...
   google.protobuf.Timestamp expires_at = 4;
 
-  // Geopolitical array mapping geopolitical restrictions across the Dominican territory infrastructure (1-32 bounds).
+  // ...
   repeated uint32 province_scope = 5 [(buf.validate.field).repeated = {
     max_items: 32
     items: {
@@ -107,81 +107,81 @@ message AssignRoleRequest {
     }
   }];
 
-  // Unique transactional identifier verifying request integrity across retry sweeps.
+  // ...
   string idempotency_key = 6 [(buf.validate.field).string = {
     min_len: 16
     max_len: 64
   }];
 
-  // Elevated short-lived cryptographic authorization token required to pass critical administrative gates.
+  // ...
   common.v1.HighSecurityToken high_security_token = 7;
 }
 
-// AssignRoleResponse yields confirmation structures reflecting newly committed access rules.
+// ...
 message AssignRoleResponse {
-  // Operational validation object capturing active clearance parameters committed inside datastores.
+  // ...
   RoleAssignment assignment = 1;
 }
 
-// RemoveRoleRequest outlines specific target profiles and privilege tokens targeted for revocation pipelines.
+// ...
 message RemoveRoleRequest {
-  // Primary database tracking key matching the target identity losing privilege access tracks.
+  // ...
   uint64 target_user_id = 1 [(buf.validate.field).uint64.gt = 0];
 
-  // Target privilege value tracking level targeted for data destruction sweeps.
+  // ...
   Role role = 2 [(buf.validate.field).enum = {
     defined_only: true
     not_in: [0]
   }];
 
-  // Audit log justification string logging management reasoning for permissions removal.
+  // ...
   string reason = 3 [(buf.validate.field).string = {
     min_len: 10
     max_len: 512
   }];
 
-  // Anti-replay transactional token tracking parameter preventing multi-execution cycles.
+  // ...
   string idempotency_key = 4 [(buf.validate.field).string = {
     min_len: 16
     max_len: 64
   }];
 
-  // Elevated security validation token confirming authority levels over administrative pipelines.
+  // ...
   common.v1.HighSecurityToken high_security_token = 5;
 }
 
-// RemoveRoleResponse echoes precision temporal snapshots tracking permissions removal transitions.
+// ...
 message RemoveRoleResponse {
-  // Hardware synchronized system clock log tracking exactly when role rows dropped out of memory trees.
+  // ...
   google.protobuf.Timestamp removed_at = 1;
 }
 
-// ListAssignableRolesRequest handles standard filters to extract metadata definitions from authorization trees.
+// ...
 message ListAssignableRolesRequest {}
 
-// ListAssignableRolesResponse maps structural metadata fields charting platform roles capabilities.
+// ...
 message ListAssignableRolesResponse {
-  // Array gathering granular definition configurations detailing accessible operational boundaries.
+  // ...
   repeated RoleDefinition roles = 1 [(buf.validate.field).repeated.max_items = 10];
 
-  // RoleDefinition isolates documentation and baseline capability parameters linked to system roles.
+  // ...
   message RoleDefinition {
-    // The specific structural role identifier index being defined.
+    // ...
     Role role = 1;
 
-    // Technical string text describing operational parameters and functional scope targets.
+    // ...
     string description = 2 [(buf.validate.field).string.max_len = 256];
 
-    // Baseline internal capabilities automatically injected into security descriptors upon role matching.
+    // ...
     repeated Permission permissions = 3 [(buf.validate.field).repeated.max_items = 50];
 
-    // Structural architectural flag tracking if permissions require localized geopolitical bounds evaluations.
+    // ...
     bool requires_geo_scope = 4;
   }
 }
 
-// GetUserRolesRequest handles optional indexing criteria to locate target security parameters.
+// ...
 message GetUserRolesRequest {
-  // Target user pointer index context. Leaving field empty prompts engines to evaluate the current caller.
+  // ...
   optional uint64 target_user_id = 1;
 }
