@@ -4,6 +4,8 @@ package common.v1;
 
 import "buf/validate/validate.proto";
 
+option go_package = "buf.build/mejorando/api/gen/go/common/v1;commonv1";
+
 // ...
 message CursorPagination {
   // ...

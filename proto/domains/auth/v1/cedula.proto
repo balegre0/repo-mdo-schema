@@ -5,18 +5,38 @@ package domains.auth.v1;
 import "buf/validate/validate.proto";
 import "common/v1/crypto.proto";
 import "common/v1/security.proto";
+import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
+
+option go_package = "buf.build/mejorando/api/gen/go/domains/auth/v1;authv1";
 
 // ...
 service CedulaService {
   // ...
-  rpc StartVerification(StartVerificationRequest) returns (StartVerificationResponse);
+  rpc StartVerification(StartVerificationRequest) returns (StartVerificationResponse) {
+    option (google.api.http) = {
+      post: "/v1/cedula/verification/start"
+      body: "*"
+    };
+  }
   // ...
-  rpc GetStatus(GetStatusRequest) returns (StartVerificationResponse);
+  rpc GetStatus(GetStatusRequest) returns (StartVerificationResponse) {
+    option (google.api.http) = {get: "/v1/cedula/verification/{verification_id}"};
+  }
   // ...
-  rpc RequestOtp(RequestOtpRequest) returns (RequestOtpResponse);
+  rpc RequestOtp(RequestOtpRequest) returns (RequestOtpResponse) {
+    option (google.api.http) = {
+      post: "/v1/cedula/otp/request"
+      body: "*"
+    };
+  }
   // ...
-  rpc VerifyOtp(VerifyOtpRequest) returns (VerifyOtpResponse);
+  rpc VerifyOtp(VerifyOtpRequest) returns (VerifyOtpResponse) {
+    option (google.api.http) = {
+      post: "/v1/cedula/otp/verify"
+      body: "*"
+    };
+  }
 }
 
 // ...
@@ -25,6 +45,7 @@ message Cedula {
   enum Gender {
     // ...
     GENDER_UNSPECIFIED = 0;
+
     // ...
     GENDER_MALE = 1;
     // ...
@@ -101,6 +122,7 @@ message StartVerificationResponse {
   enum Status {
     // ...
     STATUS_UNSPECIFIED = 0;
+
     // ...
     STATUS_PENDING = 1;
     // ...
@@ -148,6 +170,7 @@ message RequestOtpRequest {
   enum OtpMethod {
     // ...
     OTP_METHOD_UNSPECIFIED = 0;
+
     // ...
     OTP_METHOD_SMS = 1;
     // ...

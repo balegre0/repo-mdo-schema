@@ -1,0 +1,110 @@
+syntax = "proto3";
+
+package domains.reports.v1;
+
+option go_package = "buf.build/mejorando/api/gen/go/domains/reports/v1;reportsv1";
+
+// ...
+enum ReportCategory {
+  // ...
+  REPORT_CATEGORY_UNSPECIFIED = 0;
+
+  // Infrastructure (1-9)
+  // blackouts, network damage
+  REPORT_CATEGORY_INFRA_ELECTRICITY = 1;
+  // cuts, pollution
+  REPORT_CATEGORY_INFRA_WATER = 2;
+  // collapsed sewer
+  REPORT_CATEGORY_INFRA_DRAINAGE = 3;
+  // holes, lack of lighting
+  REPORT_CATEGORY_INFRA_STREETS_SIDEWALKS = 4;
+  // damaged traffic lights
+  REPORT_CATEGORY_INFRA_TRAFFIC_LIGHTS = 5;
+  // lack of garbage collection
+  REPORT_CATEGORY_INFRA_GARGAGE_COLLECTION = 6;
+
+  // Security (10-19)
+  // missing people or pets
+  REPORT_CATEGORY_SECURITY_MISSING_PERSON_PET = 10;
+  // stolen items
+  REPORT_CATEGORY_SECURITY_STOLEN_OBJECT = 11;
+  // areas with frequent robberies
+  REPORT_CATEGORY_SECURITY_DANGEROUS_ZONE = 12;
+  // police abuse
+  REPORT_CATEGORY_SECURITY_POLICE_ABUSE = 13;
+
+  // Health (20-29)
+  // donation requests (blood, medicines, equipment)
+  REPORT_CATEGORY_HEALTH_DONATION_REQUEST = 20;
+  // critical medical cases (cancer, dialysis)
+  REPORT_CATEGORY_HEALTH_CRITICAL_CASE = 21;
+  // lack of medicines in public hospitals
+  REPORT_CATEGORY_HEALTH_HOSPITAL_SHORTAGE = 22;
+
+  // Education (30-39)
+  // schools in poor condition
+  REPORT_CATEGORY_EDUCATION_SCHOOL_CONDITIONS = 30;
+  // lack of teachers
+  REPORT_CATEGORY_EDUCATION_MISSING_TEACHERS = 31;
+  // lack of water/light in educational centers
+  REPORT_CATEGORY_EDUCATION_UTILITIES = 32;
+  // bullying (anonymous)
+  REPORT_CATEGORY_EDUCATION_BULLYING = 33;
+
+  // Environment (40-49)
+  // illegal landfills
+  REPORT_CATEGORY_ENV_ILLEGAL_DUMP = 40;
+  // garbage burning
+  REPORT_CATEGORY_ENV_GARGAGE_BURNING = 41;
+  // river pollution
+  REPORT_CATEGORY_ENV_RIVER_POLLUTION = 42;
+  // illegal logging
+  REPORT_CATEGORY_ENV_ILLEGAL_LOGGING = 43;
+  // animals in danger
+  REPORT_CATEGORY_ENV_ENDANGERED_ANIMALS = 44;
+}
+
+// ...
+enum ReportStatus {
+  // ...
+  REPORT_STATUS_UNSPECIFIED = 0;
+
+  // newly created, wait for verification
+  REPORT_STATUS_PENDING = 1;
+  // human/ai verified
+  REPORT_STATUS_VERIFIED = 2;
+  // assigned to an entity (optional)
+  REPORT_STATUS_IN_PROGRESS = 3;
+  // resolved
+  REPORT_STATUS_RESOLVED = 4;
+  // fake, duplicate, spam
+  REPORT_STATUS_REJECTED = 5;
+  // archived (no solution, but closed)
+  REPORT_STATUS_CLOSED = 6;
+}
+
+// ...
+enum ReportPriority {
+  // ...
+  REPORT_PRIORITY_UNSPECIFIED = 0;
+
+  // ...
+  REPORT_PRIORITY_LOW = 1;
+  // ...
+  REPORT_PRIORITY_MEDIUM = 2;
+  // ...
+  REPORT_PRIORITY_HIGH = 3;
+  // ...
+  REPORT_PRIORITY_CRITICAL = 4;
+}
+
+// ...
+enum VoteType {
+  // ...
+  VOTE_TYPE_UNSPECIFIED = 0;
+
+  // useful
+  VOTE_TYPE_UP = 1;
+  // not helpful / report abuse
+  VOTE_TYPE_DOWN = 2;
+}

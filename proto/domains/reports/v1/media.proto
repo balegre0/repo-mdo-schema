@@ -1,0 +1,102 @@
+syntax = "proto3";
+
+package domains.reports.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "buf.build/mejorando/api/gen/go/domains/reports/v1;reportsv1";
+
+// ...
+service MediaService {
+  // ...
+  rpc UploadMedia(stream UploadMediaRequest) returns (UploadMediaResponse) {
+    option (google.api.http) = {
+      post: "/v1/reports/media/upload"
+      body: "*"
+    };
+  }
+  // ...
+  rpc GetMediaUrl(DeleteMediaRequest) returns (DeleteMediaResponse) {
+    option (google.api.http) = {delete: "/v1/reports/media/{media_id}"};
+  }
+  // ...
+  rpc DeleteMedia(DeleteMediaRequest) returns (DeleteMediaResponse) {
+    option (google.api.http) = {delete: "/v1/reports/media/{media_id}"};
+  }
+}
+
+// ...
+message UploadMediaRequest {
+  // ...
+  oneof data {
+    // ...
+    Metadata metadata = 1;
+    // ...
+    bytes chunk = 2;
+  }
+
+  // ...
+  message Metadata {
+    // ...
+    string filename = 1 [(buf.validate.field).string = {
+      min_len: 1
+      max_len: 255
+    }];
+    // ...
+    string mime_type = 2 [(buf.validate.field).string = {
+      pattern: "^(image/|video/|audio/).+$"
+      max_len: 100
+    }];
+    // ...
+    uint64 total_size = 3 [(buf.validate.field).uint64 = {
+      gte: 1
+      lte: 104857600 // 100mb
+    }];
+    // ...
+    string report_id = 4;
+  }
+}
+
+// ...
+message UploadMediaResponse {
+  // ...
+  string media_id = 1;
+  // ...
+  string download_url = 2;
+  // ...
+  google.protobuf.Timestamp expires_at = 3;
+}
+
+// ...
+message GetMediaUrlRequest {
+  // ...
+  string media_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 64
+  }];
+}
+
+// ...
+message GetMediaUrlResponse {
+  // ...
+  string download_url = 1;
+  // ...
+  google.protobuf.Timestamp expires_at = 2;
+}
+
+// ...
+message DeleteMediaRequest {
+  // ...
+  string media_id = 1 [(buf.validate.field).string = {
+    min_len: 1
+    max_len: 64
+  }];
+}
+
+// ...
+message DeleteMediaResponse {
+  // ...
+  bool deleted = 1;
+}

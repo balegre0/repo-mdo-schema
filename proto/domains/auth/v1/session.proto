@@ -7,20 +7,42 @@ import "common/v1/base.proto";
 import "common/v1/pagination.proto";
 import "common/v1/types.proto";
 import "domains/auth/v1/types.proto";
+import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
+
+option go_package = "buf.build/mejorando/api/gen/go/domains/auth/v1;authv1";
 
 // ...
 service SessionService {
   // ...
-  rpc ListSessions(ListSessionsRequest) returns (ListSessionsResponse);
+  rpc ListSessions(ListSessionsRequest) returns (ListSessionsResponse) {
+    option (google.api.http) = {get: "/v1/sessions"};
+  }
   // ...
-  rpc GetCurrentSession(GetCurrentSessionRequest) returns (GetCurrentSessionResponse);
+  rpc GetCurrentSession(GetCurrentSessionRequest) returns (GetCurrentSessionResponse) {
+    option (google.api.http) = {get: "/v1/sessions/current"};
+  }
   // ...
-  rpc RevokeSession(RevokeSessionRequest) returns (RevokeSessionResponse);
+  rpc RevokeSession(RevokeSessionRequest) returns (RevokeSessionResponse) {
+    option (google.api.http) = {
+      post: "/v1/sessions/revoke"
+      body: "*"
+    };
+  }
   // ...
-  rpc RevokeAllSessions(RevokeAllSessionsRequest) returns (RevokeAllSessionsResponse);
+  rpc RevokeAllSessions(RevokeAllSessionsRequest) returns (RevokeAllSessionsResponse) {
+    option (google.api.http) = {
+      post: "/v1/sessions/revoke-all"
+      body: "*"
+    };
+  }
   // ...
-  rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
+  rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse) {
+    option (google.api.http) = {
+      post: "/v1/sessions/refresh"
+      body: "*"
+    };
+  }
 }
 
 // ...
@@ -110,6 +132,7 @@ message RevokeSessionRequest {
   enum RevokeReason {
     // ...
     REVOKE_REASON_UNSPECIFIED = 0;
+
     // ...
     REVOKE_REASON_USER_INITIATED = 1;
     // ...

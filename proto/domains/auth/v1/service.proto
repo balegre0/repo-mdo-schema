@@ -8,26 +8,74 @@ import "common/v1/crypto.proto";
 import "common/v1/security.proto";
 import "common/v1/types.proto";
 import "domains/auth/v1/types.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
+
+option go_package = "buf.build/mejorando/api/gen/go/domains/auth/v1;authv1";
 
 // ...
 service AuthService {
   // ...
-  rpc GetProfile(GetProfileRequest) returns (GetProfileResponse);
+  rpc GetProfile(GetProfileRequest) returns (GetProfileResponse) {
+    option (google.api.http) = {get: "/v1/auth/profile"};
+  }
   // ...
-  rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse);
+  rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/password/change"
+      body: "*"
+    };
+  }
   // ...
-  rpc RequestPasswordReset(RequestPasswordResetRequest) returns (RequestPasswordResetResponse);
+  rpc RequestPasswordReset(RequestPasswordResetRequest) returns (RequestPasswordResetResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/password/reset-request"
+      body: "*"
+    };
+  }
   // ...
-  rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse);
+  rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/password/reset"
+      body: "*"
+    };
+  }
   // ...
-  rpc InitMfaSetup(InitMfaSetupRequest) returns (InitMfaSetupResponse);
+  rpc InitMfaSetup(InitMfaSetupRequest) returns (InitMfaSetupResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/mfa/init"
+      body: "*"
+    };
+  }
   // ...
-  rpc ConfirmMfaSetup(ConfirmMfaSetupRequest) returns (ConfirmMfaSetupResponse);
+  rpc ConfirmMfaSetup(ConfirmMfaSetupRequest) returns (ConfirmMfaSetupResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/mfa/confirm"
+      body: "*"
+    };
+  }
   // ...
-  rpc DisableMfa(DisableMfaRequest) returns (DisableMfaResponse);
+  rpc DisableMfa(DisableMfaRequest) returns (DisableMfaResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/mfa/disable"
+      body: "*"
+    };
+  }
   // ...
-  rpc DeleteAccount(DeleteAccountRequest) returns (DeleteAccountResponse);
+  rpc DeleteAccount(DeleteAccountRequest) returns (DeleteAccountResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/account/delete"
+      body: "*"
+    };
+  }
+  // ...
+  rpc UpdateProfile(UpdateProfileRequest) returns (UpdateProfileResponse) {
+    option (google.api.http) = {
+      patch: "/v1/auth/profile"
+      body: "profile"
+    };
+  }
 }
 
 // ...
@@ -101,10 +149,7 @@ message ChangePasswordRequest {
   bool revoke_other_sessions = 3;
 
   // ...
-  string idempotency_key = 4 [(buf.validate.field).string = {
-    min_len: 16
-    max_len: 64
-  }];
+  common.v1.IdempotencyKey idempotency_key = 4;
 
   // ...
   option (buf.validate.message).cel = {
@@ -137,10 +182,7 @@ message RequestPasswordResetRequest {
   }
 
   // ...
-  string idempotency_key = 3 [(buf.validate.field).string = {
-    min_len: 16
-    max_len: 64
-  }];
+  common.v1.IdempotencyKey idempotency_key = 3;
 }
 
 // ...
@@ -167,10 +209,7 @@ message ResetPasswordRequest {
   }];
 
   // ...
-  string idempotency_key = 3 [(buf.validate.field).string = {
-    min_len: 16
-    max_len: 64
-  }];
+  common.v1.IdempotencyKey idempotency_key = 4;
 }
 
 // ...
@@ -311,3 +350,21 @@ message DeleteAccountResponse {
 
 // ...
 message GetProfileRequest {}
+
+// ...
+message UpdateProfileRequest {
+  // ...
+  UserProfile profile = 1;
+
+  // ...
+  google.protobuf.FieldMask update_mask = 2;
+}
+
+// ...
+message UpdateProfileResponse {
+  // ...
+  UserProfile profile = 1;
+
+  // ...
+  google.protobuf.Timestamp updated_at = 2;
+}

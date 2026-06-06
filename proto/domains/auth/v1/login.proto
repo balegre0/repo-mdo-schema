@@ -8,20 +8,45 @@ import "common/v1/crypto.proto";
 import "common/v1/types.proto";
 import "domains/auth/v1/session.proto";
 import "domains/auth/v1/types.proto";
+import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
+
+option go_package = "buf.build/mejorando/api/gen/go/domains/auth/v1;authv1";
 
 // ...
 service LoginService {
   // ...
-  rpc Login(LoginRequest) returns (LoginResponse);
+  rpc Login(LoginRequest) returns (LoginResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/login"
+      body: "*"
+    };
+  }
   // ...
-  rpc MfaChallenge(MfaChallengeRequest) returns (MfaChallengeResponse);
+  rpc MfaChallenge(MfaChallengeRequest) returns (MfaChallengeResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/mfa/challenge"
+      body: "*"
+    };
+  }
   // ...
-  rpc RequestMagicLink(RequestMagicLinkRequest) returns (RequestMagicLinkResponse);
+  rpc RequestMagicLink(RequestMagicLinkRequest) returns (RequestMagicLinkResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/magic-link"
+      body: "*"
+    };
+  }
   // ...
-  rpc GetBiometricChallenge(GetBiometricChallengeRequest) returns (GetBiometricChallengeResponse);
+  rpc GetBiometricChallenge(GetBiometricChallengeRequest) returns (GetBiometricChallengeResponse) {
+    option (google.api.http) = {get: "/v1/auth/biometric/challenge/{device_id}"};
+  }
   // ...
-  rpc Logout(LogoutRequest) returns (LogoutResponse);
+  rpc Logout(LogoutRequest) returns (LogoutResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/logout"
+      body: "*"
+    };
+  }
 }
 
 // ...
@@ -88,10 +113,7 @@ message LoginRequest {
   common.v1.ClientMetadata client_metadata = 4;
 
   // ...
-  string idempotency_key = 5 [(buf.validate.field).string = {
-    min_len: 16
-    max_len: 64
-  }];
+  common.v1.IdempotencyKey idempotency_key = 5;
 }
 
 // ...

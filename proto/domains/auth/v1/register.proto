@@ -6,18 +6,38 @@ import "buf/validate/validate.proto";
 import "common/v1/base.proto";
 import "common/v1/types.proto";
 import "domains/auth/v1/types.proto";
+import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
+
+option go_package = "buf.build/mejorando/api/gen/go/domains/auth/v1;authv1";
 
 // ...
 service RegisterService {
   // ...
-  rpc Register(RegisterRequest) returns (RegisterResponse);
+  rpc Register(RegisterRequest) returns (RegisterResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/register"
+      body: "*"
+    };
+  }
   // ...
-  rpc CheckAvailability(CheckAvailabilityRequest) returns (CheckAvailabilityResponse);
+  rpc CheckAvailability(CheckAvailabilityRequest) returns (CheckAvailabilityResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/check-availability"
+      body: "*"
+    };
+  }
   // ...
-  rpc VerifyEmail(VerifyEmailRequest) returns (VerifyEmailResponse);
+  rpc VerifyEmail(VerifyEmailRequest) returns (VerifyEmailResponse) {
+    option (google.api.http) = {get: "/v1/auth/verify-email/{token}"};
+  }
   // ...
-  rpc ResendVerificationEmail(ResendVerificationEmailRequest) returns (ResendVerificationEmailResponse);
+  rpc ResendVerificationEmail(ResendVerificationEmailRequest) returns (ResendVerificationEmailResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/resend-verification"
+      body: "*"
+    };
+  }
 }
 
 // ...
@@ -54,10 +74,7 @@ message RegisterRequest {
   string device_id = 7 [(buf.validate.field).string.max_len = 128];
 
   // ...
-  string idempotency_key = 8 [(buf.validate.field).string = {
-    min_len: 16
-    max_len: 64
-  }];
+  common.v1.IdempotencyKey idempotency_key = 8;
 
   // ...
   common.v1.ClientMetadata client_metadata = 9;
@@ -140,10 +157,7 @@ message ResendVerificationEmailRequest {
   }];
 
   // ...
-  string idempotency_key = 2 [(buf.validate.field).string = {
-    min_len: 16
-    max_len: 64
-  }];
+  common.v1.IdempotencyKey idempotency_key = 2;
 }
 
 // ...

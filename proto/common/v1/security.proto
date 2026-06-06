@@ -6,6 +6,8 @@ import "buf/validate/validate.proto";
 import "common/v1/crypto.proto";
 import "google/protobuf/timestamp.proto";
 
+option go_package = "buf.build/mejorando/api/gen/go/common/v1;commonv1";
+
 // ...
 message UserEncryptedPayload {
   // ...
@@ -15,10 +17,8 @@ message UserEncryptedPayload {
 
     // ...
     KDF_ALGORITHM_HKDF_SHA256 = 1;
-
     // ...
     KDF_ALGORITHM_PBKDF2_SHA512 = 2;
-
     // ...
     KDF_ALGORITHM_ARGON2ID = 3;
   }

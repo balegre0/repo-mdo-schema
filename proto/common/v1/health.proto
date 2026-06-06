@@ -6,10 +6,13 @@ import "buf/validate/validate.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 
+option go_package = "buf.build/mejorando/api/gen/go/common/v1;commonv1";
+
 // ...
 enum HealthStatus {
   // ...
   HEALTH_STATUS_UNSPECIFIED = 0;
+
   // ...
   HEALTH_STATUS_HEALTHY = 1;
   // ...

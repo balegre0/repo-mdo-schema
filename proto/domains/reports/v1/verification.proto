@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package domains.reports.v1;
+
+option go_package = "buf.build/mejorando/api/gen/go/domains/reports/v1;reportsv1";
+
+service VerificationService {}

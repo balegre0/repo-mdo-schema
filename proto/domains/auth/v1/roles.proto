@@ -6,19 +6,37 @@ import "buf/validate/validate.proto";
 import "common/v1/base.proto";
 import "common/v1/pagination.proto";
 import "common/v1/security.proto";
+import "common/v1/types.proto";
 import "domains/auth/v1/types.proto";
+import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
+
+option go_package = "buf.build/mejorando/api/gen/go/domains/auth/v1;authv1";
 
 // ...
 service RolesService {
   // ...
-  rpc GetUserRoles(GetUserRolesRequest) returns (GetUserRolesResponse);
+  rpc GetUserRoles(GetUserRolesRequest) returns (GetUserRolesResponse) {
+    option (google.api.http) = {get: "/v1/roles/user/{target_user_id}"};
+  }
   // ...
-  rpc AssignRole(AssignRoleRequest) returns (AssignRoleResponse);
+  rpc AssignRole(AssignRoleRequest) returns (AssignRoleResponse) {
+    option (google.api.http) = {
+      post: "/v1/roles/assign"
+      body: "*"
+    };
+  }
   // ...
-  rpc RemoveRole(RemoveRoleRequest) returns (RemoveRoleResponse);
+  rpc RemoveRole(RemoveRoleRequest) returns (RemoveRoleResponse) {
+    option (google.api.http) = {
+      post: "/v1/roles/remove"
+      body: "*"
+    };
+  }
   // ...
-  rpc ListAssignableRoles(ListAssignableRolesRequest) returns (ListAssignableRolesResponse);
+  rpc ListAssignableRoles(ListAssignableRolesRequest) returns (ListAssignableRolesResponse) {
+    option (google.api.http) = {get: "/v1/roles/assignable"};
+  }
 }
 
 // ...
@@ -108,10 +126,7 @@ message AssignRoleRequest {
   }];
 
   // ...
-  string idempotency_key = 6 [(buf.validate.field).string = {
-    min_len: 16
-    max_len: 64
-  }];
+  common.v1.IdempotencyKey idempotency_key = 6;
 
   // ...
   common.v1.HighSecurityToken high_security_token = 7;
@@ -141,10 +156,7 @@ message RemoveRoleRequest {
   }];
 
   // ...
-  string idempotency_key = 4 [(buf.validate.field).string = {
-    min_len: 16
-    max_len: 64
-  }];
+  common.v1.IdempotencyKey idempotency_key = 4;
 
   // ...
   common.v1.HighSecurityToken high_security_token = 5;
